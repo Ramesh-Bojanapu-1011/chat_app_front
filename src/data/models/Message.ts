@@ -1,9 +1,13 @@
-// models/Message.ts
 import mongoose from "mongoose";
 
-const MessageSchema = new mongoose.Schema({
-  text: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
-});
+const MessageSchema = new mongoose.Schema(
+  {
+    sender: { type: String, required: true },
+    recipient: { type: String, required: true },
+    text: { type: String, required: true },
+    read: { type: Boolean, default: false }, // New field for read status
+  },
+  { timestamps: true }
+);
 
 export default mongoose.models.Message || mongoose.model("Message", MessageSchema);
