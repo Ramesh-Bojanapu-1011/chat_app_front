@@ -10,16 +10,20 @@
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.0.3",
+    "mongoose": "^8.9.6",
     "next": "15.1.6",
     "postcss": "^8.5.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "tailwindcss": "^4.0.3"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/socket.io": "^3.0.1",
     "typescript": "^5"
   }
 }
