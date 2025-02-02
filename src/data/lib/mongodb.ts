@@ -1,9 +1,7 @@
 // lib/mongodb.ts
 import mongoose from "mongoose";
 
-const MONGODB_URI =
-  process.env.MONGODB_URI ||
-  "mongodb+srv://Lovelyram:JWwCxlbMG2kv9qvY@cluster0.83s8v4s.mongodb.net/?retryWrites=true&w=majority&appName=cluster0";
+const MONGODB_URI = process.env.MONGODB_URI || "";
 
 if (!MONGODB_URI) {
   throw new Error(
