@@ -42,11 +42,6 @@ export default function Chat({
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
 
-    socket.emit("sendMessage", {
-      senderId: userId,
-      receiverId: friendId,
-      message: newMessage,
-    });
     const res = await fetch("/api/messages/save", {
       method: "POST",
       headers: {
@@ -58,7 +53,11 @@ export default function Chat({
         message: newMessage,
       }),
     });
+
     const data = await res.json();
+    socket.emit("sendMessage", {
+      data,
+    });
     console.log(data);
 
     setNewMessage("");
