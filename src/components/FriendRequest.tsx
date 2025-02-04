@@ -1,22 +1,22 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 export default function FriendRequest({ userId }: { userId: string }) {
-  const [friendEmail, setFriendEmail] = useState("");
-  const [message, setMessage] = useState("");
+  const [friendEmail, setFriendEmail] = useState('');
+  const [message, setMessage] = useState('');
 
   const sendRequest = async () => {
-    setMessage("");
+    setMessage('');
 
-    const res = await fetch("/api/friends/sendRequest", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const res = await fetch('/api/friends/sendRequest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, friendEmail }),
     });
 
     const data = await res.json();
 
     if (res.ok) {
-      setMessage("Friend request sent!");
+      setMessage('Friend request sent!');
     } else {
       setMessage(data.error);
     }

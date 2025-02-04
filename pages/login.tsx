@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/router";
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/router';
 
 interface LoginForm {
   email: string;
@@ -16,24 +16,24 @@ export default function Login() {
   } = useForm<LoginForm>();
 
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
 
   const onSubmit = async (data: LoginForm) => {
     setLoading(true);
-    setErrorMessage("");
+    setErrorMessage('');
 
-    const res = await signIn("credentials", {
+    const res = await signIn('credentials', {
       redirect: false,
       email: data.email,
       password: data.password,
     });
 
     if (res?.error) {
-      setErrorMessage("Invalid email or password.");
+      setErrorMessage('Invalid email or password.');
       setLoading(false);
     } else {
-      router.push("/dashboard"); // Redirect to dashboard on success
+      router.push('/dashboard'); // Redirect to dashboard on success
     }
   };
 
@@ -54,7 +54,7 @@ export default function Login() {
             </label>
             <input
               type="email"
-              {...register("email", { required: "Email is required" })}
+              {...register('email', { required: 'Email is required' })}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             />
             {errors.email && (
@@ -71,7 +71,7 @@ export default function Login() {
             </label>
             <input
               type="password"
-              {...register("password", { required: "Password is required" })}
+              {...register('password', { required: 'Password is required' })}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             />
             {errors.password && (
@@ -87,12 +87,12 @@ export default function Login() {
             disabled={loading}
             className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
           >
-            {loading ? "Logging In..." : "Login"}
+            {loading ? 'Logging In...' : 'Login'}
           </button>
         </form>
 
         <p className="mt-4 text-sm text-center">
-          Don't have an account?{" "}
+          Don't have an account?{' '}
           <a href="/signup" className="text-blue-500">
             Sign up
           </a>

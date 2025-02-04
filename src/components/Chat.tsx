@@ -1,12 +1,13 @@
-"use client";
-import { useEffect, useState } from "react";
-import { io } from "socket.io-client";
+'use client';
+import { useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
 
 interface Message {
   _id: string;
   senderId: { _id: string; username: string; email: string };
   receiverId: { _id: string; username: string; email: string };
-  message: string;
+  message?: string;
+  fileUrl?: string;
   createdAt: string;
 }
 
@@ -18,8 +19,10 @@ export default function Chat({
   friendId: string;
 }) {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState("");
-  const socket = io({ path: "/api/socket" });
+  const [newMessage, setNewMessage] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+
+  const socket = io({ path: '/api/socket' });
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -34,33 +37,94 @@ export default function Chat({
   }, [friendId]);
 
   useEffect(() => {
-    socket.on("receiveMessage", (message) => {
+    console.log('Connecting to socket...');
+
+    socket.on('connect', () => {
+      console.log('Socket Connected:', socket.id);
+    });
+
+    socket.on('receiveMessage', (message: Message) => {
+      console.log('Received Message:', message);
       setMessages((prev) => [...prev, message]);
     });
+
+    socket.on('disconnect', () => {
+      console.log('Socket Disconnected');
+    });
+
+    return () => {
+      socket.off('receiveMessage');
+    };
   }, []);
 
   const sendMessage = async () => {
-    if (!newMessage.trim()) return;
+    // if () return;
+    if ((!newMessage.trim() && !file) || !newMessage.trim() || !file) return;
 
-    const res = await fetch("/api/messages/save", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        senderId: userId,
-        receiverId: friendId,
-        message: newMessage,
-      }),
+    const formData = new FormData();
+    formData.append('file', file);
+    const upload = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
     });
+    const fileUrl = await upload.json();
 
-    const data = await res.json();
-    socket.emit("sendMessage", {
-      data,
-    });
-    console.log(data);
+    if (fileUrl.fileUrl || newMessage) {
+      // const messageData = {
+      //   senderId: userId,
+      //   receiverId: friendId,
+      //   message: newMessage,
+      //   fileUrl: fileUrl.fileUrl,
+      // };
+      const res = await fetch('/api/messages/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          senderId: userId,
+          receiverId: friendId,
+          message: newMessage,
+          fileUrl: fileUrl.fileUrl,
+        }),
+      });
+      const data = await res.json();
+      // const msgdata = data.messageData;
+      socket.emit('sendMessage', {
+        data,
+      });
+      console.log(data);
+    }
 
-    setNewMessage("");
+    setFile(null);
+
+    //     // fileUrl
+    // :
+    // "/uploads/5ef65faaed0da5a97bc6aded4dd1c611"
+    // message
+    // :
+    // "hgfgdhfdg"
+    // receiverId
+    // :
+    // "67a2109d00e78dd39be6b867"
+    // senderId
+    // :
+    // "67a2106f00e78dd39be6b85f"
+
+    // const res = await fetch("/api/messages/save", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     senderId: userId,
+    //     receiverId: friendId,
+    //     message: newMessage,
+    //     // fileUrl: data.fileUrl,
+    //   }),
+    // });
+
+    setNewMessage('');
   };
 
   return (
@@ -72,11 +136,17 @@ export default function Chat({
             key={msg._id}
             className={`p-2 my-1 rounded-lg ${
               msg.senderId._id === userId
-                ? "bg-blue-300 text-right"
-                : "bg-gray-300 text-left"
+                ? 'bg-blue-300 text-right'
+                : 'bg-gray-300 text-left'
             }`}
           >
-            <strong>{msg.receiverId.username}:</strong> {msg.message}
+            <strong>{msg.receiverId.username}:</strong>
+            {msg.fileUrl && (
+              <>
+                <img src={msg.fileUrl} alt={msg.fileUrl} />
+              </>
+            )}{' '}
+            {msg.message}
           </div>
         ))}
       </div>
@@ -87,12 +157,18 @@ export default function Chat({
         placeholder="Type a message..."
         className="w-full border p-2 rounded-lg"
       />
+      <input
+        type="file"
+        onChange={(e) => setFile(e.target.files?.[0] || null)}
+      />
       <button
         onClick={sendMessage}
         className="w-full mt-2 bg-blue-500 text-white p-2 rounded-lg"
       >
-        Send
+        Send message
       </button>
+
+      {/* <button onClick={sendFile}>Send File</button> */}
     </div>
   );
 }
