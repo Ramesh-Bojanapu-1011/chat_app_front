@@ -1,78 +1,70 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { Server as ServerIO } from "socket.io";
-import { connectToDatabase } from "@/data/lib/mongodb";
+import { Server as IOServer } from "socket.io";
+import { Server as HTTPServer } from "http";
+import type { Socket as NetSocket } from "net";
+// import Message from "../../models/Message"; // Import Message Model
+// import { connectDB } from "../../lib/mongodb";
+import mongoose from "mongoose";
+import { connectDB } from "@/data/lib/mongodb";
 import Message from "@/data/models/Message";
-import User from "@/data/models/User";
 
-type NextApiResponseWithSocket = NextApiResponse & { socket: any };
-const onlineUsers: Record<string, string> = {};
+interface SocketServer extends HTTPServer {
+  io?: IOServer;
+}
+
+interface SocketWithServer extends NetSocket {
+  server: SocketServer;
+}
+
+interface NextApiResponseWithSocket extends NextApiResponse {
+  socket: SocketWithServer;
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponseWithSocket) {
   if (!res.socket.server.io) {
-    console.log("Initializing Socket.IO server...");
-
-   /* This code snippet is initializing a new instance of a Socket.IO server using the `Server` class
-   from the `socket.io` library. Here's a breakdown of what each part of the code is doing: */
-    const io = new ServerIO(res.socket.server, {
+    console.log("✅ Starting Socket.IO server...");
+    const io = new IOServer(res.socket.server as any, {
       path: "/api/socket",
       cors: { origin: "*" },
     });
 
-    /* The code snippet you provided is handling various socket events using Socket.IO. Here's a
-    breakdown of what each part of the code is doing: */
-    io.on("connection", async (socket) => {
-      console.log("User connected:", socket.id);
+    io.on("connection", (socket) => {
+      console.log("🔹 User connected:", socket.id);
 
-      // Register user
-      socket.on("register", async ({ username, email, password }) => {
-        await connectToDatabase();
-
-        let user = await User.findOne({ username });
-        if (!user) {
-          user = new User({ username, email, password, socketId: socket.id });
-          await user.save();
-        } else {
-          user.socketId = socket.id;
-          await user.save();
+      socket.on("sendMessage", async ({ senderId, receiverId, message }) => {
+        if (!senderId || !receiverId || !message) {
+          console.log("❌ Error: Missing message fields");
+          return;
         }
 
-        onlineUsers[username] = socket.id;
-        console.log(`${username} registered with ID: ${socket.id}`);
-        io.emit("users", Object.keys(onlineUsers));
-      });
+        try {
+          await connectDB();
 
-      // Private messaging
-      socket.on("privateMessage", async ({ sender, recipient, text }) => {
-        const recipientSocketId = onlineUsers[recipient];
+          // Convert string IDs to ObjectId
+          const senderObjectId = new mongoose.Types.ObjectId(senderId);
+          const receiverObjectId = new mongoose.Types.ObjectId(receiverId);
 
-        // Save message to MongoDB
-        await connectToDatabase();
-        const newMessage = new Message({ sender, recipient, text });
-        await newMessage.save();
+          const newMessage = new Message({
+            senderId: senderObjectId,
+            receiverId: receiverObjectId,
+            message,
+          });
 
-        if (recipientSocketId) {
-          io.to(recipientSocketId).emit("privateMessage", { sender, text });
-        } else {
-          socket.emit("error", { message: `${recipient} is offline` });
+          await newMessage.save();
+          console.log("✅ Message saved to DB:", newMessage);
+
+          io.to(receiverId).emit("receiveMessage", { senderId, message });
+        } catch (error) {
+          console.error("❌ Error saving message:", error);
         }
       });
 
-      // Handle disconnect
-      socket.on("disconnect", async () => {
-        const user = Object.keys(onlineUsers).find((key) => onlineUsers[key] === socket.id);
-        if (user) {
-          delete onlineUsers[user];
-          await User.updateOne({ username: user }, { socketId: null });
-          console.log(`${user} disconnected.`);
-          io.emit("users", Object.keys(onlineUsers));
-        }
+      socket.on("disconnect", () => {
+        console.log("🔹 User disconnected:", socket.id);
       });
     });
 
     res.socket.server.io = io;
-  } else {
-    console.log("Socket.IO server already running.");
   }
-
   res.end();
 }

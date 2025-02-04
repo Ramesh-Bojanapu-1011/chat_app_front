@@ -2,159 +2,98 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
-const socket = io({ path: "/api/socket" });
+interface Message {
+  _id: string;
+  senderId: { _id: string; username: string; email: string };
+  receiverId: { _id: string; username: string; email: string };
+  message: string;
+  createdAt: string;
+}
 
-export default function Chat() {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [recipient, setRecipient] = useState("");
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<
-    { sender: string; text: string; read: boolean }[]
-  >([]);
-  const [users, setUsers] = useState<string[]>([]);
+export default function Chat({
+  userId,
+  friendId,
+}: {
+  userId: string;
+  friendId: string;
+}) {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const socket = io({ path: "/api/socket" });
 
   useEffect(() => {
-    socket.on("users", (onlineUsers: string[]) => {
-      setUsers(onlineUsers.filter((u) => u !== username));
-    });
-
-    socket.on("privateMessage", (msg: { sender: string; text: string }) => {
-      if (msg.sender === recipient || msg.sender === username) {
-        setMessages((prev) => [...prev, { ...msg, read: false }]);
-      }
-    });
-
-    return () => {
-      socket.off("privateMessage");
-      socket.off("users");
+    const fetchMessages = async () => {
+      const res = await fetch(
+        `/api/messages/get?senderId=${userId}&receiverId=${friendId}`
+      );
+      const data = await res.json();
+      console.log(data);
+      setMessages(data.messages);
     };
-  }, [recipient]);
+    fetchMessages();
+  }, [friendId]);
 
-  const registerUser = () => {
-    if (username && email && password) {
-      socket.emit("register", { username, email, password });
-    }
-  };
-
-  const fetchMessages = async (selectedUser: string) => {
-    setRecipient(selectedUser);
-    if (!username || !selectedUser) return;
-
-    // Fetch chat history
-    const res = await fetch(
-      `/api/messages?sender=${username}&recipient=${selectedUser}`
-    );
-    const data = await res.json();
-    setMessages(data);
-
-    // Mark messages as read
-    await fetch(`/api/read-messages`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sender: selectedUser, recipient: username }),
+  useEffect(() => {
+    socket.on("receiveMessage", (message) => {
+      setMessages((prev) => [...prev, message]);
     });
+  }, []);
 
-    // Update local state to reflect read status
-    setMessages((prev) => prev.map((msg) => ({ ...msg, read: true })));
-  };
+  const sendMessage = async () => {
+    if (!newMessage.trim()) return;
 
-  const sendMessage = () => {
-    if (message.trim() && recipient) {
-      const msg = { sender: username, recipient, text: message, read: false };
-      socket.emit("privateMessage", msg);
-      setMessages((prev) => [...prev, msg]);
-      setMessage("");
-    }
+    socket.emit("sendMessage", {
+      senderId: userId,
+      receiverId: friendId,
+      message: newMessage,
+    });
+    const res = await fetch("/api/messages/save", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        senderId: userId,
+        receiverId: friendId,
+        message: newMessage,
+      }),
+    });
+    const data = await res.json();
+    console.log(data);
+
+    setNewMessage("");
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">
-      <div className="w-full max-w-md p-4 border rounded-lg shadow-md bg-white">
-        <h2 className="text-lg font-semibold text-center mb-3">Chat App</h2>
-
-        {/* Registration Form */}
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Username"
-            className="w-full p-2 border rounded mb-2"
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            className="w-full p-2 border rounded mb-2"
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full p-2 border rounded mb-2"
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button
-            onClick={registerUser}
-            className="w-full bg-blue-500 text-white p-2 rounded"
+    <div className="p-4 bg-white rounded-lg shadow-md">
+      <h2 className="text-lg font-semibold mb-2">Chat</h2>
+      <div className="h-64 overflow-y-auto border p-2 mb-2">
+        {messages.map((msg) => (
+          <div
+            key={msg._id}
+            className={`p-2 my-1 rounded-lg ${
+              msg.senderId._id === userId
+                ? "bg-blue-300 text-right"
+                : "bg-gray-300 text-left"
+            }`}
           >
-            Register
-          </button>
-        </div>
-
-        {/* Online Users */}
-        <div className="mb-3">
-          <select
-            value={recipient}
-            onChange={(e) => fetchMessages(e.target.value)}
-            className="w-full p-2 border rounded"
-          >
-            <option value="">Select a friend</option>
-            {users.map((user) => (
-              <option key={user} value={user}>
-                {user}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Chat Messages */}
-        <div className="h-64 overflow-y-auto border-b mb-4 p-2 bg-gray-50 rounded-md">
-          {messages.map((msg, i) => (
-            <div
-              key={i}
-              className={`p-2 mb-1 rounded-md ${
-                msg.sender === username
-                  ? "bg-blue-200 text-right"
-                  : "bg-gray-200 text-left"
-              }`}
-            >
-              <strong>{msg.sender}:</strong> {msg.text}
-              {msg.sender === username && (
-                <span className="text-xs ml-2">
-                  {msg.read ? "✅ Read" : "⏳ Sent"}
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Send Message */}
-        <div className="flex">
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            className="flex-1 p-2 border rounded-l"
-          />
-          <button
-            onClick={sendMessage}
-            className="bg-blue-500 text-white p-2 rounded-r"
-          >
-            Send
-          </button>
-        </div>
+            <strong>{msg.receiverId.username}:</strong> {msg.message}
+          </div>
+        ))}
       </div>
+      <input
+        type="text"
+        value={newMessage}
+        onChange={(e) => setNewMessage(e.target.value)}
+        placeholder="Type a message..."
+        className="w-full border p-2 rounded-lg"
+      />
+      <button
+        onClick={sendMessage}
+        className="w-full mt-2 bg-blue-500 text-white p-2 rounded-lg"
+      >
+        Send
+      </button>
     </div>
   );
 }

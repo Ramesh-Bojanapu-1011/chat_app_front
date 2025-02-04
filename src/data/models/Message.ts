@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
 
+// Message schema with ObjectId references
 const MessageSchema = new mongoose.Schema(
   {
-    sender: { type: String, required: true },
-    recipient: { type: String, required: true },
-    text: { type: String, required: true },
-    read: { type: Boolean, default: false }, // New field for read status
+    senderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    receiverId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    message: { type: String, required: true },
   },
   { timestamps: true }
 );

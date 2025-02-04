@@ -1,10 +1,11 @@
-import Chat from "@/components/Chat";
-import Image from "next/image";
-
 export default function Home() {
   return (
     <>
-      <Chat />
+      <div className="flex justify-center items-center h-screen w-screen">
+        <a href="/login" className="text-xl ">
+          login
+        </a>
+      </div>
     </>
   );
 }

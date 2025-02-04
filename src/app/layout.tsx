@@ -1,7 +1,7 @@
-'use client';
+"use client";
 // import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "../../styles/globals.css";
 import { useEffect, useState } from "react";
 
 const geistSans = Geist({
@@ -28,9 +28,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>chat</title>
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>My Next.js App</title>
+        <meta name="description" content="" />
+        <meta name="keywords" content="" />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         {isClient && <>{children}</>}
       </body>
     </html>
