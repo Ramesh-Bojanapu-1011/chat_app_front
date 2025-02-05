@@ -1,4 +1,5 @@
 'use client';
+import { getSocket } from '@/data/utils/socket';
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 
@@ -22,7 +23,7 @@ export default function Chat({
   const [newMessage, setNewMessage] = useState('');
   const [file, setFile] = useState<File | null>(null);
 
-  const socket = io({ path: '/api/socket' });
+  const socket = getSocket();
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -33,6 +34,7 @@ export default function Chat({
       console.log(data);
       setMessages(data.messages);
     };
+
     fetchMessages();
   }, [friendId]);
 
@@ -42,88 +44,53 @@ export default function Chat({
     socket.on('connect', () => {
       console.log('Socket Connected:', socket.id);
     });
+    socket.emit('userOnline', userId); // Register user as online
+    console.log('🔵 User Online:', userId);
 
     socket.on('receiveMessage', (message: Message) => {
       console.log('Received Message:', message);
       setMessages((prev) => [...prev, message]);
     });
 
-    socket.on('disconnect', () => {
-      console.log('Socket Disconnected');
-    });
-
     return () => {
-      socket.off('receiveMessage');
+      socket.off('receiveMessage', (message: Message) => {
+        console.log('Received Message:', message);
+        setMessages((prev) => [...prev, message]);
+      });
     };
-  }, []);
+  }, [userId]);
 
   const sendMessage = async () => {
-    // if () return;
-    if ((!newMessage.trim() && !file) || !newMessage.trim() || !file) return;
+    if (!newMessage.trim()) return;
 
-    const formData = new FormData();
-    formData.append('file', file);
-    const upload = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
-    });
-    const fileUrl = await upload.json();
-
-    if (fileUrl.fileUrl || newMessage) {
-      // const messageData = {
-      //   senderId: userId,
-      //   receiverId: friendId,
-      //   message: newMessage,
-      //   fileUrl: fileUrl.fileUrl,
-      // };
-      const res = await fetch('/api/messages/save', {
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      const upload = await fetch('/api/upload', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          senderId: userId,
-          receiverId: friendId,
-          message: newMessage,
-          fileUrl: fileUrl.fileUrl,
-        }),
+        body: formData,
       });
-      const data = await res.json();
-      // const msgdata = data.messageData;
-      socket.emit('sendMessage', {
-        data,
-      });
-      console.log(data);
+      const fileUrl = await upload.json();
+      if (fileUrl.fileUrl || newMessage) {
+        const res = await fetch('/api/messages/save', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            senderId: userId,
+            receiverId: friendId,
+            message: newMessage,
+            fileUrl: fileUrl.fileUrl,
+          }),
+        });
+        const data = await res.json();
+        console.log('📤 Sending Message:', data);
+        socket.emit('sendMessage', data.data);
+      }
     }
 
     setFile(null);
-
-    //     // fileUrl
-    // :
-    // "/uploads/5ef65faaed0da5a97bc6aded4dd1c611"
-    // message
-    // :
-    // "hgfgdhfdg"
-    // receiverId
-    // :
-    // "67a2109d00e78dd39be6b867"
-    // senderId
-    // :
-    // "67a2106f00e78dd39be6b85f"
-
-    // const res = await fetch("/api/messages/save", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({
-    //     senderId: userId,
-    //     receiverId: friendId,
-    //     message: newMessage,
-    //     // fileUrl: data.fileUrl,
-    //   }),
-    // });
-
     setNewMessage('');
   };
 
@@ -140,13 +107,14 @@ export default function Chat({
                 : 'bg-gray-300 text-left'
             }`}
           >
-            <strong>{msg.receiverId.username}:</strong>
+            <strong>{msg.senderId.username}:</strong>
             {msg.fileUrl && (
               <>
                 <img src={msg.fileUrl} alt={msg.fileUrl} />
               </>
             )}{' '}
             {msg.message}
+            <div>{msg.receiverId._id === userId ? 'receicved' : 'sent'}</div>
           </div>
         ))}
       </div>
@@ -159,7 +127,7 @@ export default function Chat({
       />
       <input
         type="file"
-        onChange={(e) => setFile(e.target.files?.[0] || null)}
+        onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
       />
       <button
         onClick={sendMessage}
