@@ -84,8 +84,6 @@ export default function Chat({
     uploadFile();
   }, [file]);
 
-   
-
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
     if (file || newMessage) {

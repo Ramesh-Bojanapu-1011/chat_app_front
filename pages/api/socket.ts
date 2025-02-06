@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 import { connectDB } from '@/data/lib/mongodb';
 import Message from '@/data/models/Message';
 
-type SocketUser = { userId: string; socketId: string};
+type SocketUser = { userId: string; socketId: string };
 
 let onlineUsers: SocketUser[] = [];
 
@@ -53,11 +53,10 @@ export default async function handler(
             fileUrl: fileUrl || null,
           });
           // Ensure senderId and receiverId are not arrays and are strings
-    const senderIdStr = Array.isArray(senderId) ? senderId[0] : senderId;
-    const receiverIdStr = Array.isArray(receiverId)
-      ? receiverId[0]
-      : receiverId;
-
+          const senderIdStr = Array.isArray(senderId) ? senderId[0] : senderId;
+          const receiverIdStr = Array.isArray(receiverId)
+            ? receiverId[0]
+            : receiverId;
 
           // Convert string IDs to ObjectId
           // const senderObjectId = new mongoose.Types.ObjectId(senderId);
@@ -74,7 +73,7 @@ export default async function handler(
             .sort({ createdAt: -1 }) // Sort by creation date in descending order
             .limit(1);
 
-            console.log("newMessage",receiverIdStr._id)
+          console.log('newMessage', receiverIdStr._id);
 
           const receiverSocket = onlineUsers.find(
             (user) => user.userId === receiverIdStr._id
