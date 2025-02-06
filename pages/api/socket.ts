@@ -53,7 +53,9 @@ export default async function handler(
             fileUrl: fileUrl || null,
           });
 
-          console.log(onlineUsers.find((user) => user.userId === receiverId)?.userId);
+          console.log(
+            onlineUsers.find((user) => user.userId === receiverId)?.userId
+          );
 
           const receiverSocket = onlineUsers.find(
             (user) => user.userId === receiverId

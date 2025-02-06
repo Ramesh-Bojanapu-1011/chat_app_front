@@ -26,7 +26,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
       try {
         const result = await cloudinary.v2.uploader.upload(file.path);
-        res.status(200).json({ message: 'File uploaded to Cloudinary', fileUrl: result.secure_url });
+        res
+          .status(200)
+          .json({
+            message: 'File uploaded to Cloudinary',
+            fileUrl: result.secure_url,
+          });
         resolve(null);
       } catch (error) {
         res.status(500).json({ error: 'Cloudinary upload failed' });
@@ -34,6 +39,6 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       }
     });
   });
-};
+}
 
 export const config = { api: { bodyParser: false } };

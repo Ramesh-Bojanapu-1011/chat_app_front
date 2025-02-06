@@ -23,6 +23,8 @@ export default function Chat({
   const [file, setFile] = useState<File>();
   const [fileUrl, setFileUrl] = useState('');
 
+  const [friend, setFriend] = useState('');
+
   const socket = getSocket();
 
   useEffect(() => {
@@ -31,9 +33,17 @@ export default function Chat({
         `/api/messages/get?senderId=${userId}&receiverId=${friendId}`
       );
       const data = await res.json();
-      console.log(data);
+      console.log(data.messages);
       setMessages(data.messages);
+      if (data.messages == 0) {
+        setFriend(friendId);
+        return;
+      }
+
+      setFriend(data.messages[0].receiverId.username);
     };
+
+    console.log(friend);
 
     fetchMessages();
   }, [friendId]);
@@ -103,7 +113,7 @@ export default function Chat({
 
   return (
     <div className="p-4 bg-white rounded-lg shadow-md">
-      <h2 className="text-lg font-semibold mb-2">Chat</h2>
+      <h2 className="text-lg font-semibold mb-2">Chat {friend}</h2>
       <div className="h-64 overflow-y-auto border p-2 mb-2">
         {messages.map((msg) => (
           <div
