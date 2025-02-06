@@ -1,7 +1,6 @@
 'use client';
 import { getSocket } from '@/data/utils/socket';
 import { useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
 
 interface Message {
   _id: string;
@@ -21,7 +20,8 @@ export default function Chat({
 }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [file, setFile] = useState<File | null>(null);
+  const [file, setFile] = useState<File>();
+  const [fileUrl, setFileUrl] = useState('');
 
   const socket = getSocket();
 
@@ -60,37 +60,44 @@ export default function Chat({
     };
   }, [userId]);
 
+  useEffect(() => {
+    const uploadFile = async () => {
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const upload = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        const fileUrl = await upload.json();
+        setFileUrl(fileUrl);
+      }
+    };
+
+    uploadFile();
+  }, [file]);
+
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
-
-    if (file) {
-      const formData = new FormData();
-      formData.append('file', file);
-      const upload = await fetch('/api/upload', {
+    if (file || newMessage) {
+      const res = await fetch('/api/messages/save', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          senderId: userId,
+          receiverId: friendId,
+          message: newMessage,
+          fileUrl: fileUrl,
+        }),
       });
-      const fileUrl = await upload.json();
-      if (fileUrl.fileUrl || newMessage) {
-        const res = await fetch('/api/messages/save', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            senderId: userId,
-            receiverId: friendId,
-            message: newMessage,
-            fileUrl: fileUrl.fileUrl,
-          }),
-        });
-        const data = await res.json();
-        console.log('📤 Sending Message:', data);
-        socket.emit('sendMessage', data.data);
-      }
+      const data = await res.json();
+      console.log('📤 Sending Message:', data);
+      socket.emit('sendMessage', data.data);
     }
 
-    setFile(null);
+    setFile(undefined);
     setNewMessage('');
   };
 
@@ -127,7 +134,9 @@ export default function Chat({
       />
       <input
         type="file"
-        onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
+        onChange={(e) =>
+          setFile(e.target.files ? e.target.files[0] : undefined)
+        }
       />
       <button
         onClick={sendMessage}
