@@ -11,13 +11,13 @@ export default function Dashboard() {
   // const router = useRouter();
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
 
-  // useEffect(() => {
-  //   if (!session) {
-  //     return;
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+  }, []);
 
-  // console.log(data);
+
 
   return (
     <>
