@@ -57,16 +57,13 @@ export default function Chat({
     socket.emit('userOnline', userId); // Register user as online
     console.log('🔵 User Online:', userId);
 
-    socket.on('receiveMessage', (message: Message) => {
+    socket.on('receiveMessage', (message) => {
       console.log('Received Message:', message);
-      setMessages((prev) => [...prev, message]);
+      setMessages((prev) => [...prev, message[0]]);
     });
 
     return () => {
-      socket.off('receiveMessage', (message: Message) => {
-        console.log('Received Message:', message);
-        setMessages((prev) => [...prev, message]);
-      });
+      socket.off('receiveMessage');
     };
   }, [userId]);
 
@@ -87,6 +84,8 @@ export default function Chat({
     uploadFile();
   }, [file]);
 
+   
+
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
     if (file || newMessage) {
@@ -102,14 +101,18 @@ export default function Chat({
           fileUrl: fileUrl,
         }),
       });
-      const data = await res.json();
-      console.log('📤 Sending Message:', data);
-      socket.emit('sendMessage', data.data);
-    }
 
-    setFile(undefined);
-    setNewMessage('');
+      const data = await res.json();
+
+      console.log('📤 Sending Message:', data.data);
+
+      socket.emit('sendMessage', data.data[0]);
+
+      setMessages((prev) => [...prev, data.data[0]]);
+    }
   };
+
+  // console.log(messages)
 
   return (
     <div className="p-4 bg-white rounded-lg shadow-md">
@@ -131,7 +134,6 @@ export default function Chat({
               </>
             )}{' '}
             {msg.message}
-            <div>{msg.receiverId._id === userId ? 'receicved' : 'sent'}</div>
           </div>
         ))}
       </div>

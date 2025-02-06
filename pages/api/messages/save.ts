@@ -1,5 +1,6 @@
 import { connectDB } from '@/data/lib/mongodb';
 import Message from '@/data/models/Message';
+import mongoose from 'mongoose';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
@@ -21,9 +22,22 @@ export default async function handler(
     const newMessage = new Message({ senderId, receiverId, message, fileUrl });
     await newMessage.save();
 
-    return res
-      .status(201)
-      .json({ message: 'Message stored', data: newMessage });
+    // Convert string IDs to ObjectId
+    const senderObjectId = new mongoose.Types.ObjectId(senderId);
+    const receiverObjectId = new mongoose.Types.ObjectId(receiverId);
+
+    const finalmsg = await Message.find({
+      $or: [
+        { senderId: senderObjectId, receiverId: receiverObjectId },
+        { senderId: receiverObjectId, receiverId: senderObjectId },
+      ],
+    })
+      .populate('senderId', 'username email') // Populate sender details
+      .populate('receiverId', 'username email') // Populate receiver details
+      .sort({ createdAt: -1 }) // Sort by creation date in descending order
+      .limit(1);
+
+    return res.status(201).json({ message: 'Message stored', data: finalmsg });
   } catch (error: any) {
     return res
       .status(500)
