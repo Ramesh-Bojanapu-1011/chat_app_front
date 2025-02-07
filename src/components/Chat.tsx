@@ -27,6 +27,8 @@ export default function Chat({
 
   const socket = getSocket();
 
+  console.log(socket)
+
   useEffect(() => {
     const fetchMessages = async () => {
       const res = await fetch(
