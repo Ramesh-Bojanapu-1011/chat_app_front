@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI =
-  'mongodb+srv://Lovelyram:c8HAOr0SfWnTIVAN@cluster0.83s8v4s.mongodb.net/?retryWrites=true&w=majority&appName=cluster0';
+const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable');
@@ -13,9 +12,13 @@ export async function connectDB(): Promise<typeof mongoose> {
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
-    cached.promise = mongoose
-      .connect(MONGODB_URI, {})
-      .then((mongoose) => mongoose);
+    if (typeof MONGODB_URI === 'string') {
+      cached.promise = mongoose
+        .connect(MONGODB_URI, {})
+        .then((mongoose) => mongoose);
+    } else {
+      throw new Error('MONGODB_URI is not a string');
+    }
   }
 
   cached.conn = await cached.promise;
