@@ -12,8 +12,11 @@ export default function Dashboard() {
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!session) {
+    if (session.status == 'unauthenticated') {
       router.push('/login');
+    }
+    if (session.status == 'loading') {
+      console.log('Loading session...');
     }
   }, [session]);
 
@@ -21,7 +24,7 @@ export default function Dashboard() {
     return <div>Not logged in</div>;
   }
 
-  console.log(session.data);
+  console.log(session);
 
   return (
     <>
