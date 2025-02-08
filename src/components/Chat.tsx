@@ -1,5 +1,6 @@
 'use client';
 import { getSocket } from '@/data/utils/socket';
+import { io } from 'socket.io-client';
 import { useEffect, useState } from 'react';
 
 interface Message {
@@ -25,7 +26,9 @@ export default function Chat({
 
   const [friend, setFriend] = useState('');
 
-  const socket = getSocket();
+  const socket = io({
+    path: '/api/socket',
+  });
 
   console.log(socket);
 
