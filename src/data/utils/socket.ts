@@ -11,7 +11,7 @@ export const getSocket = (): Socket => {
   if (!socket) {
     socket = io(siteurl, {
       path: '/api/socket',
-      transports: ['websocket'], // Force WebSocket transport
+      // transports: ['websocket'], // Force WebSocket transport
     });
   }
   return socket;
