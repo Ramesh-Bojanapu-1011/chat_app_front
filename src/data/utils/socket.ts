@@ -9,9 +9,8 @@ const siteurl =
 
 export const getSocket = (): Socket => {
   if (!socket) {
-    socket = io(siteurl, {
+    socket = io({
       path: '/api/socket',
-      // transports: ['websocket'], // Force WebSocket transport
     });
   }
   return socket;
