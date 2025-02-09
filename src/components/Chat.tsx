@@ -78,7 +78,8 @@ export default function Chat({
           method: 'POST',
           body: formData,
         });
-        const fileUrl = await upload.json();
+        const uploadResponse = await upload.json();
+        const fileUrl = uploadResponse.fileUrl;
         setFileUrl(fileUrl);
       }
     };
@@ -89,6 +90,7 @@ export default function Chat({
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
     if (file || newMessage) {
+      console.log('fileUrl', fileUrl);
       const res = await fetch('/api/messages/save', {
         method: 'POST',
         headers: {
