@@ -69,48 +69,56 @@ export default function Chat({
     };
   }, [userId]);
 
-  useEffect(() => {
-    const uploadFile = async () => {
-      if (file) {
-        const formData = new FormData();
-        formData.append('file', file);
-        const upload = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-        const uploadResponse = await upload.json();
-        const fileUrl = uploadResponse.fileUrl;
-        setFileUrl(fileUrl);
-      }
-    };
-
-    uploadFile();
-  }, [file]);
-
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
     if (file || newMessage) {
-      console.log('fileUrl', fileUrl);
-      const res = await fetch('/api/messages/save', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          senderId: userId,
-          receiverId: friendId,
-          message: newMessage,
-          fileUrl: fileUrl,
-        }),
-      });
-
-      const data = await res.json();
-
-      console.log('📤 Sending Message:', data.data);
-
-      socket.emit('sendMessage', data.data[0]);
-
-      setMessages((prev) => [...prev, data.data[0]]);
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const upload = await fetch(`api/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+        console.log(formData);
+        const uploadResponse = await upload.json();
+        const fileUrl = uploadResponse.fileUrl;
+        setFileUrl(fileUrl);
+        console.log('fileUrl', fileUrl);
+        const res = await fetch('/api/messages/save', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            senderId: userId,
+            receiverId: friendId,
+            message: newMessage,
+            fileUrl: fileUrl,
+          }),
+        });
+        const data = await res.json();
+        console.log('📤 Sending Message:', data.data);
+        socket.emit('sendMessage', data.data[0]);
+        setMessages((prev) => [...prev, data.data[0]]);
+      } else {
+        console.log('fileUrl', fileUrl);
+        const res = await fetch('/api/messages/save', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            senderId: userId,
+            receiverId: friendId,
+            message: newMessage,
+            fileUrl: fileUrl,
+          }),
+        });
+        const data = await res.json();
+        console.log('📤 Sending Message:', data.data);
+        socket.emit('sendMessage', data.data[0]);
+        setMessages((prev) => [...prev, data.data[0]]);
+      }
     }
   };
 

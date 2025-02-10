@@ -9,7 +9,7 @@ const siteurl =
 
 export const getSocket = (): Socket => {
   if (!socket) {
-    socket = io({
+    socket = io(siteurl, {
       path: '/api/socket',
     });
   }
