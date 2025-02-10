@@ -1,6 +1,7 @@
 'use client';
 import { getSocket } from '@/data/utils/socket';
 import { useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
 
 interface Message {
   _id: string;
@@ -75,10 +76,13 @@ export default function Chat({
       if (file) {
         const formData = new FormData();
         formData.append('file', file);
-        const upload = await fetch(`api/upload`, {
-          method: 'POST',
-          body: formData,
-        });
+        const upload = await fetch(
+          `/api/upload?senderId=${userId}&receiverId=${friendId},`,
+          {
+            method: 'POST',
+            body: formData,
+          }
+        );
         console.log(formData);
         const uploadResponse = await upload.json();
         const fileUrl = uploadResponse.fileUrl;
