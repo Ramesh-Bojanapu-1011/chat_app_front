@@ -1,7 +1,6 @@
 'use client';
 import { getSocket } from '@/data/utils/socket';
 import { useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
 
 interface Message {
   _id: string;
@@ -9,6 +8,7 @@ interface Message {
   receiverId: { _id: string; username: string; email: string };
   message?: string;
   fileUrl?: string;
+  isRead: boolean;
   createdAt: string;
 }
 
@@ -51,6 +51,32 @@ export default function Chat({
     fetchMessages();
   }, [friendId]);
 
+  useEffect(() => {
+    // Listen for read receipts
+    socket.on('messageRead', ({ messageId }) => {
+      console.log('✅ Message Read Event Received:', messageId);
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg._id === messageId ? { ...msg, isRead: true } : msg
+        )
+      );
+    });
+
+    return () => {
+      socket.off('messageRead');
+    };
+  }, []);
+
+  useEffect(() => {
+    messages.forEach((msg) => {
+      if (!msg.isRead && msg.receiverId._id === userId) {
+        console.log('📤 Sending Mark Read Event:', msg._id);
+        socket.emit('markAsRead', {
+          messageId: msg._id,
+        });
+      }
+    });
+  }, [messages, newMessage]);
   useEffect(() => {
     console.log('Connecting to socket...');
 
@@ -148,6 +174,9 @@ export default function Chat({
               </>
             )}{' '}
             {msg.message}
+            {msg.senderId._id === userId && (
+              <>{msg.isRead ? <span>✅ Seen</span> : <span>⏳ Sent</span>}</>
+            )}
           </div>
         ))}
       </div>
@@ -170,8 +199,6 @@ export default function Chat({
       >
         Send message
       </button>
-
-      {/* <button onClick={sendFile}>Send File</button> */}
     </div>
   );
 }
