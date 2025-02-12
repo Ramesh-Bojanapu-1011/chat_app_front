@@ -6,6 +6,8 @@ export interface IUser extends Document {
   password: string;
   friends: mongoose.Types.ObjectId[];
   friendRequests: mongoose.Types.ObjectId[];
+  isOnline: boolean;
+  lastSeen: Date;
 }
 
 const UserSchema = new Schema<IUser>({
@@ -14,6 +16,8 @@ const UserSchema = new Schema<IUser>({
   password: { type: String, required: true },
   friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   friendRequests: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  isOnline: { type: Boolean, default: false },
+  lastSeen: { type: Date, default: null },
 });
 
 export default mongoose.models.User ||

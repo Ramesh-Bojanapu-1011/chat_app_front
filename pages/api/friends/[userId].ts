@@ -13,7 +13,7 @@ export default async function handler(
 
   const user = await User.findById(userId).populate(
     'friends',
-    'username email'
+    'username email isOnline lastSeen'
   );
   if (!user) return res.status(404).json({ error: 'User not found.' });
 

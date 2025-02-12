@@ -28,7 +28,7 @@ export default function Chat({
 
   const socket = getSocket();
 
-  console.log(socket);
+  // console.log(socket);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -36,7 +36,7 @@ export default function Chat({
         `/api/messages/get?senderId=${userId}&receiverId=${friendId}`
       );
       const data = await res.json();
-      console.log(data.messages);
+      // console.log(data.messages);
       setMessages(data.messages);
       if (data.messages == 0) {
         setFriend(friendId);
@@ -46,7 +46,7 @@ export default function Chat({
       setFriend(data.messages[0].receiverId.username);
     };
 
-    console.log(friend);
+    // console.log(friend);
 
     fetchMessages();
   }, [friendId]);
@@ -54,7 +54,7 @@ export default function Chat({
   useEffect(() => {
     // Listen for read receipts
     socket.on('messageRead', ({ messageId }) => {
-      console.log('✅ Message Read Event Received:', messageId);
+      // console.log('✅ Message Read Event Received:', messageId);
       setMessages((prev) =>
         prev.map((msg) =>
           msg._id === messageId ? { ...msg, isRead: true } : msg
@@ -70,7 +70,7 @@ export default function Chat({
   useEffect(() => {
     messages.forEach((msg) => {
       if (!msg.isRead && msg.receiverId._id === userId) {
-        console.log('📤 Sending Mark Read Event:', msg._id);
+        // console.log('📤 Sending Mark Read Event:', msg._id);
         socket.emit('markAsRead', {
           messageId: msg._id,
         });
@@ -78,16 +78,16 @@ export default function Chat({
     });
   }, [messages, newMessage]);
   useEffect(() => {
-    console.log('Connecting to socket...');
+    // console.log('Connecting to socket...');
 
     socket.on('connect', () => {
-      console.log('Socket Connected:', socket.id);
+      // console.log('Socket Connected:', socket.id);
     });
     socket.emit('userOnline', userId); // Register user as online
-    console.log('🔵 User Online:', userId);
+    // console.log('🔵 User Online:', userId);
 
     socket.on('receiveMessage', (message) => {
-      console.log('Received Message:', message);
+      // console.log('Received Message:', message);
       setMessages((prev) => [...prev, message[0]]);
     });
 
@@ -109,11 +109,11 @@ export default function Chat({
             body: formData,
           }
         );
-        console.log(formData);
+        // console.log(formData);
         const uploadResponse = await upload.json();
         const fileUrl = uploadResponse.fileUrl;
         setFileUrl(fileUrl);
-        console.log('fileUrl', fileUrl);
+        // console.log('fileUrl', fileUrl);
         const res = await fetch('/api/messages/save', {
           method: 'POST',
           headers: {
@@ -127,11 +127,11 @@ export default function Chat({
           }),
         });
         const data = await res.json();
-        console.log('📤 Sending Message:', data.data);
+        // console.log('📤 Sending Message:', data.data);
         socket.emit('sendMessage', data.data[0]);
         setMessages((prev) => [...prev, data.data[0]]);
       } else {
-        console.log('fileUrl', fileUrl);
+        // console.log('fileUrl', fileUrl);
         const res = await fetch('/api/messages/save', {
           method: 'POST',
           headers: {
@@ -145,7 +145,7 @@ export default function Chat({
           }),
         });
         const data = await res.json();
-        console.log('📤 Sending Message:', data.data);
+        // console.log('📤 Sending Message:', data.data);
         socket.emit('sendMessage', data.data[0]);
         setMessages((prev) => [...prev, data.data[0]]);
       }

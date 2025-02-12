@@ -1,8 +1,11 @@
+import { getSocket } from '@/data/utils/socket';
 import { useEffect, useState } from 'react';
 
 interface Friend {
   _id: string;
   username: string;
+  isOnline: boolean;
+  lastSeen: Date;
 }
 
 export default function FriendList({
@@ -12,6 +15,7 @@ export default function FriendList({
   userId: string;
   onSelectFriend: (friendId: string) => void;
 }) {
+  const socket = getSocket();
   const [friends, setFriends] = useState<Friend[]>([]);
 
   useEffect(() => {
@@ -19,6 +23,30 @@ export default function FriendList({
       .then((res) => res.json())
       .then(setFriends);
   }, []);
+
+  useEffect(() => {
+    socket.on('userStatusUpdate', () => {
+      fetch(`/api/friends/${userId}`)
+        .then((res) => res.json())
+        .then(setFriends);
+    });
+
+    return () => {
+      socket.off('userStatusUpdate');
+    };
+  }, []);
+  console.log(friends);
+
+  const formatLastSeen = (date: any) => {
+    if (!date) return 'Unknown';
+    const diff = Math.floor(
+      (new Date().getTime() - new Date(date).getTime()) / 60000
+    ); // in minutes
+    if (diff < 1) return 'Just now';
+    if (diff < 60) return `${diff} minutes ago`;
+    if (diff < 24 * 60) return `${Math.floor(diff / 60)} hours ago`;
+    return `${Math.floor(diff / (24 * 60))} days ago`;
+  };
 
   return (
     <div>
@@ -31,7 +59,16 @@ export default function FriendList({
             onClick={() => onSelectFriend(friend._id)}
             className="block w-full text-left p-2 mt-2 bg-white rounded-lg shadow-sm hover:bg-blue-100"
           >
-            {friend.username}
+            <span
+              className={`w-3 h-3 p-4 rounded-full ${friend.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
+            >
+              {friend.username}
+              <span className="text-gray-600 text-sm">
+                {friend.isOnline
+                  ? 'Online'
+                  : `Last seen ${formatLastSeen(friend.lastSeen)}`}
+              </span>
+            </span>
           </button>
         ))}
       </div>
