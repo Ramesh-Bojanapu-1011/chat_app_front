@@ -157,7 +157,7 @@ export default function Chat({
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-}, [messages]);
+  }, [messages]);
 
   const formatTime = (timestamp: any) => {
     return new Date(timestamp).toLocaleTimeString([], {
