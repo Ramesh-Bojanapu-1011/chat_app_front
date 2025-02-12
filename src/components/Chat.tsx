@@ -1,4 +1,5 @@
 'use client';
+import React from 'react';
 import { getSocket } from '@/data/utils/socket';
 import { useEffect, useState } from 'react';
 
@@ -9,6 +10,7 @@ interface Message {
   message?: string;
   fileUrl?: string;
   isRead: boolean;
+  isReadAt: Date;
   createdAt: string;
 }
 
@@ -53,11 +55,11 @@ export default function Chat({
 
   useEffect(() => {
     // Listen for read receipts
-    socket.on('messageRead', ({ messageId }) => {
+    socket.on('messageRead', ({ messageId, isReadAt }) => {
       // console.log('✅ Message Read Event Received:', messageId);
       setMessages((prev) =>
         prev.map((msg) =>
-          msg._id === messageId ? { ...msg, isRead: true } : msg
+          msg._id === messageId ? { ...msg, isRead: true, isReadAt } : msg
         )
       );
     });
@@ -152,6 +154,13 @@ export default function Chat({
     }
   };
 
+  const formatTime = (timestamp: any) => {
+    return new Date(timestamp).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
   // console.log(messages)
 
   return (
@@ -161,22 +170,34 @@ export default function Chat({
         {messages.map((msg) => (
           <div
             key={msg._id}
-            className={`p-2 my-1 rounded-lg ${
-              msg.senderId._id === userId
-                ? 'bg-blue-300 text-right'
-                : 'bg-gray-300 text-left'
-            }`}
+            className={`flex items-center  ${
+              msg.senderId._id === userId ? 'justify-end   ' : ' justify-start '
+            }      `}
           >
-            <strong>{msg.senderId.username}:</strong>
-            {msg.fileUrl && (
-              <>
-                <img src={msg.fileUrl} alt={msg.fileUrl} />
-              </>
-            )}{' '}
-            {msg.message}
-            {msg.senderId._id === userId && (
-              <>{msg.isRead ? <span>✅ Seen</span> : <span>⏳ Sent</span>}</>
-            )}
+            <div
+              className={`p-2 my-1       rounded-lg ${
+                msg.senderId._id === userId ? 'bg-blue-300   ' : 'bg-gray-300 '
+              } `}
+            >
+              <strong>{msg.senderId.username}:</strong>
+              {msg.fileUrl && (
+                <>
+                  <img src={msg.fileUrl} alt={msg.fileUrl} />
+                </>
+              )}{' '}
+              {msg.message}
+              {msg.senderId._id === userId && (
+                <>
+                  {msg.isRead ? (
+                    <>
+                      <span>✅ Seen{formatTime(msg.isReadAt)}</span>
+                    </>
+                  ) : (
+                    <span>⏳ Sent</span>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         ))}
       </div>
