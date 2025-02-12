@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useRef } from 'react';
 import { getSocket } from '@/data/utils/socket';
 import { useEffect, useState } from 'react';
 
@@ -25,6 +25,7 @@ export default function Chat({
   const [newMessage, setNewMessage] = useState('');
   const [file, setFile] = useState<File>();
   const [fileUrl, setFileUrl] = useState('');
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   const [friend, setFriend] = useState('');
 
@@ -154,6 +155,10 @@ export default function Chat({
     }
   };
 
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+}, [messages]);
+
   const formatTime = (timestamp: any) => {
     return new Date(timestamp).toLocaleTimeString([], {
       hour: '2-digit',
@@ -200,6 +205,7 @@ export default function Chat({
             </div>
           </div>
         ))}
+        <div ref={chatEndRef}></div>
       </div>
       <input
         type="text"
