@@ -25,7 +25,7 @@ const LandingPage = () => {
             </a>
           </div>
           <div className="flex items-center space-x-4">
-            <a href="/login.tsx">
+            <a href="/login">
               <button className="px-4 py-2 text-blue-600 hover:text-blue-700">
                 Login
               </button>

@@ -17,11 +17,27 @@ export default function FriendList({
 }) {
   const socket = getSocket();
   const [friends, setFriends] = useState<Friend[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     fetch(`/api/friends/${userId}`)
       .then((res) => res.json())
       .then(setFriends);
+  }, []);
+
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await fetch("/api/messages/unreadCount");
+        const data = await res.json();
+        console.log(data)
+        setUnreadCount(data.unreadCount);
+      } catch (error) {
+        console.error("🚨 Error fetching unread count:", error);
+      }
+    };
+
+    fetchUnreadCount();
   }, []);
 
   useEffect(() => {
