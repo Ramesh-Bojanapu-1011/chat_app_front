@@ -3,7 +3,7 @@ import FriendList from '@/components/FriendList';
 import FriendRequest from '@/components/FriendRequest';
 import HandleRequests from '@/components/HandleRequests';
 import { getSocket } from '@/data/utils/socket';
-import {  signOut, useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 

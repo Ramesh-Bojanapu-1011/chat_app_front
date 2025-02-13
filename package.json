@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "npm run format && npm run build && next dev  ",
     "format": "prettier --write .",
     "build": "next build",
-    "start": "next start",
+    "start": "npm run format && next start",
     "lint": "next lint"
   },
   "dependencies": {
