@@ -25,7 +25,7 @@ export default function FriendList({
     fetch(`/api/friends/${userId}`)
       .then((res) => res.json())
       .then(setFriends);
-  }, [userId]);
+  }, []);
 
   useEffect(() => {
     socket.on('userStatusUpdate', () => {
