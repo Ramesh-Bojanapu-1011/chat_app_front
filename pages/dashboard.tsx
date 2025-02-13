@@ -1,11 +1,24 @@
-import Chat from '@/components/Chat';
-import FriendList from '@/components/FriendList';
-import FriendRequest from '@/components/FriendRequest';
-import HandleRequests from '@/components/HandleRequests';
+// import Chat from '@/components/Chat';
+// import FriendList from '@/components/FriendList';
+// import FriendRequest from '@/components/FriendRequest';
+// import HandleRequests from '@/components/HandleRequests';
 import { getSocket } from '@/data/utils/socket';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+
+import dynamic from 'next/dynamic';
+
+const HandleRequests = dynamic(() => import('@/components/HandleRequests'), {
+  ssr: false,
+});
+const Chat = dynamic(() => import('@/components/Chat'), { ssr: false });
+const FriendList = dynamic(() => import('@/components/FriendList'), {
+  ssr: false,
+});
+const FriendRequest = dynamic(() => import('@/components/FriendRequest'), {
+  ssr: false,
+});
 
 export default function Dashboard() {
   const session = useSession();
