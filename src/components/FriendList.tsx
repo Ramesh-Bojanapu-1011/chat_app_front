@@ -21,6 +21,18 @@ export default function FriendList({
     {}
   );
 
+  useEffect(() => {
+    socket.on('userStatusUpdate', () => {
+      fetch(`/api/friends/${userId}`)
+        .then((res) => res.json())
+        .then(setFriends);
+    });
+
+    return () => {
+      socket.off('userStatusUpdate');
+    };
+  }, [userId]);
+
   /* The `useEffect` hook you provided is responsible for fetching the unread message count from the
 server and updating the state with that count. Here's a breakdown of what it does: */
   useEffect(() => {
@@ -28,7 +40,7 @@ server and updating the state with that count. Here's a breakdown of what it doe
       try {
         const res = await fetch('/api/messages/unreadCount');
         const data = await res.json();
-        setUnreadCounts(data.unreadCounts);
+        setUnreadCounts(data);
         console.log(data);
       } catch (error) {
         console.error('🚨 Error fetching unread count:', error);
@@ -45,17 +57,7 @@ server and updating the state with that count. Here's a breakdown of what it doe
     };
   }, []);
 
-  useEffect(() => {
-    socket.on('userStatusUpdate', () => {
-      fetch(`/api/friends/${userId}`)
-        .then((res) => res.json())
-        .then(setFriends);
-    });
 
-    return () => {
-      socket.off('userStatusUpdate');
-    };
-  }, []);
   console.log(friends);
 
   const formatLastSeen = (date: any) => {
@@ -87,7 +89,7 @@ server and updating the state with that count. Here's a breakdown of what it doe
                 className={`w-3 h-3 p-4 rounded-full ${friend.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
               >
                 {friend.username}
-                {friendId && unreadCounts[friendId] > 0 && (
+                {unreadCounts==null && unreadCounts[friendId] > 0 && (
                   <span className="text-xl">{unreadCounts[friendId]}</span>
                 )}
 
