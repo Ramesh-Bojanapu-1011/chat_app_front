@@ -34,7 +34,6 @@ server and updating the state with that count. Here's a breakdown of what it doe
         console.error('🚨 Error fetching unread count:', error);
       }
     };
-    if (friends.length == 0) return;
     socket.on('unreadcount', () => {
       fetchUnreadCount();
     });
