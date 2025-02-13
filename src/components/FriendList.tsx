@@ -21,7 +21,6 @@ export default function FriendList({
     {}
   );
 
-
   /* The `useEffect` hook you provided is responsible for fetching the unread message count from the
 server and updating the state with that count. Here's a breakdown of what it does: */
   useEffect(() => {
@@ -49,8 +48,8 @@ server and updating the state with that count. Here's a breakdown of what it doe
   useEffect(() => {
     socket.on('userStatusUpdate', () => {
       fetch(`/api/friends/${userId}`)
-      .then((res) => res.json())
-      .then(setFriends);     
+        .then((res) => res.json())
+        .then(setFriends);
     });
 
     return () => {
