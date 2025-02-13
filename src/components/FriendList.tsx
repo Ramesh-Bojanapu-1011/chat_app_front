@@ -21,8 +21,6 @@ export default function FriendList({
     {}
   );
 
-
-
   /* The `useEffect` hook you provided is responsible for fetching the unread message count from the
 server and updating the state with that count. Here's a breakdown of what it does: */
   useEffect(() => {
@@ -77,7 +75,8 @@ server and updating the state with that count. Here's a breakdown of what it doe
         <h2 className="text-lg font-semibold">Friends List</h2>
         {friends.length === 0 ? <p>No friends found</p> : null}
         {friends.map((friend) => {
-          
+          const friendId = friend._id.toString();
+
           return (
             <button
               key={friend._id}
@@ -88,9 +87,9 @@ server and updating the state with that count. Here's a breakdown of what it doe
                 className={`w-3 h-3 p-4 rounded-full ${friend.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
               >
                 {friend.username}
-                {/* {unreadCount > 0 && (
+                {friendId && unreadCounts[friendId] > 0 && (
                   <span className="text-xl">{unreadCounts[friendId]}</span>
-                )} */}
+                )}
 
                 <span className="text-gray-600 text-sm">
                   {friend.isOnline
