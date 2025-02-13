@@ -22,6 +22,12 @@ export default function FriendList({
   );
 
   useEffect(() => {
+    fetch(`/api/friends/${userId}`)
+      .then((res) => res.json())
+      .then(setFriends);
+  }, [userId]);
+
+  useEffect(() => {
     socket.on('userStatusUpdate', () => {
       fetch(`/api/friends/${userId}`)
         .then((res) => res.json())
@@ -40,8 +46,8 @@ server and updating the state with that count. Here's a breakdown of what it doe
       try {
         const res = await fetch('/api/messages/unreadCount');
         const data = await res.json();
-        setUnreadCounts(data);
-        console.log(data);
+        setUnreadCounts(data.unreadCounts);
+        console.log(data.unreadCounts);
       } catch (error) {
         console.error('🚨 Error fetching unread count:', error);
       }
@@ -75,6 +81,7 @@ server and updating the state with that count. Here's a breakdown of what it doe
       <div className="p-4 bg-gray-100 rounded-lg shadow-md">
         <h2 className="text-lg font-semibold">Friends List</h2>
         {friends.length === 0 ? <p>No friends found</p> : null}
+
         {friends.map((friend) => {
           const friendId = friend._id.toString();
 
@@ -88,7 +95,7 @@ server and updating the state with that count. Here's a breakdown of what it doe
                 className={`w-3 h-3 p-4 rounded-full ${friend.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
               >
                 {friend.username}
-                {unreadCounts != null && unreadCounts[friendId] > 0 && (
+                {unreadCounts[friendId] > 0 && (
                   <span className="text-xl">{unreadCounts[friendId]}</span>
                 )}
 
