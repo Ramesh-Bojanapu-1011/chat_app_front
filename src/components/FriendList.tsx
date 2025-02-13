@@ -57,7 +57,6 @@ server and updating the state with that count. Here's a breakdown of what it doe
     };
   }, []);
 
-
   console.log(friends);
 
   const formatLastSeen = (date: any) => {
@@ -89,7 +88,7 @@ server and updating the state with that count. Here's a breakdown of what it doe
                 className={`w-3 h-3 p-4 rounded-full ${friend.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
               >
                 {friend.username}
-                {unreadCounts==null && unreadCounts[friendId] > 0 && (
+                {unreadCounts != null && unreadCounts[friendId] > 0 && (
                   <span className="text-xl">{unreadCounts[friendId]}</span>
                 )}
 
