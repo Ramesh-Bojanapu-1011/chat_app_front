@@ -17,20 +17,10 @@ export default function FriendList({
 }) {
   const socket = getSocket();
   const [friends, setFriends] = useState<Friend[]>([]);
-  const [userStatus, setUserStatus] = useState<{
-    [key: string]: { isOnline: boolean; lastSeen: Date };
-  }>({});
   const [unreadCounts, setUnreadCounts] = useState<{ [key: string]: number }>(
     {}
   );
 
-  /* The `useEffect` hook you provided is responsible for fetching the list of friends for a specific
-user from the server and updating the state with that list. Here's a breakdown of what it does: */
-  useEffect(() => {
-    fetch(`/api/friends/${userId}`)
-      .then((res) => res.json())
-      .then(setFriends);
-  }, []);
 
   /* The `useEffect` hook you provided is responsible for fetching the unread message count from the
 server and updating the state with that count. Here's a breakdown of what it does: */
@@ -57,11 +47,10 @@ server and updating the state with that count. Here's a breakdown of what it doe
   }, []);
 
   useEffect(() => {
-    socket.on('userStatusUpdate', ({ userId, isOnline, lastSeen }) => {
-      setUserStatus((prev) => ({
-        ...prev,
-        [userId]: { isOnline, lastSeen },
-      }));
+    socket.on('userStatusUpdate', () => {
+      fetch(`/api/friends/${userId}`)
+      .then((res) => res.json())
+      .then(setFriends);     
     });
 
     return () => {
@@ -95,7 +84,7 @@ server and updating the state with that count. Here's a breakdown of what it doe
               className="block w-full text-left p-2 mt-2 bg-white rounded-lg shadow-sm hover:bg-blue-100"
             >
               <span
-                className={`w-3 h-3 p-4 rounded-full ${userStatus[friend._id]?.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
+                className={`w-3 h-3 p-4 rounded-full ${friend.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
               >
                 {friend.username}
                 {unreadCounts[friendId] > 0 && (
@@ -103,7 +92,7 @@ server and updating the state with that count. Here's a breakdown of what it doe
                 )}
 
                 <span className="text-gray-600 text-sm">
-                  {userStatus[friend._id]?.isOnline
+                  {friend.isOnline
                     ? 'Online'
                     : `Last seen ${formatLastSeen(friend.lastSeen)}`}
                 </span>
