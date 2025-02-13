@@ -3,7 +3,7 @@ import FriendList from '@/components/FriendList';
 import FriendRequest from '@/components/FriendRequest';
 import HandleRequests from '@/components/HandleRequests';
 import { getSocket } from '@/data/utils/socket';
-import { getSession, signOut, useSession } from 'next-auth/react';
+import {  signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
@@ -31,16 +31,6 @@ export default function Dashboard() {
       console.log('🔵 User Online:', session?.data?.user?.id);
     }
   }, [session]);
-
-  // useEffect(() => {
-  //   // console.log('Connecting to socket...');
-
-  //   socket.on('connect', () => {
-  //     // console.log('Socket Connected:', socket.id);
-  //   });
-  //   socket.emit('userOnline', session?.data?.user?.id); // Register user as online
-  //   // console.log('🔵 User Online:', userId);
-  // }, [session?.data?.user?.id]);
 
   console.log(session);
 
