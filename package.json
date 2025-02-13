@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm run format && npm run build && next dev  ",
+    "dev": "next dev",
     "format": "prettier --write .",
     "build": "next build",
     "start": "npm run format && next start",
