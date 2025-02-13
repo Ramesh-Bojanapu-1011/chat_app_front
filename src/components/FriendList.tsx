@@ -37,13 +37,13 @@ server and updating the state with that count. Here's a breakdown of what it doe
       }
     };
 
-    // socket.on('unreadcount', () => {
-      // fetchUnreadCount();
-    // });
+    socket.on('unreadcount', () => {
+      fetchUnreadCount();
+    });
     fetchUnreadCount();
 
     return () => {
-      // socket.off('unreadcount');
+      socket.off('unreadcount');
     };
   }, []);
 
