@@ -21,15 +21,7 @@ export default function FriendList({
     {}
   );
 
-  useEffect(() => {
-    console.log('this is FriendList');
-  }, []);
 
-  useEffect(() => {
-    fetch(`/api/friends/${userId}`)
-      .then((res) => res.json())
-      .then(setFriends);
-  }, []);
 
   /* The `useEffect` hook you provided is responsible for fetching the unread message count from the
 server and updating the state with that count. Here's a breakdown of what it does: */
@@ -44,13 +36,14 @@ server and updating the state with that count. Here's a breakdown of what it doe
         console.error('🚨 Error fetching unread count:', error);
       }
     };
-    socket.on('unreadcount', () => {
-      fetchUnreadCount();
-    });
+
+    // socket.on('unreadcount', () => {
+      // fetchUnreadCount();
+    // });
     fetchUnreadCount();
 
     return () => {
-      socket.off('unreadcount');
+      // socket.off('unreadcount');
     };
   }, []);
 
