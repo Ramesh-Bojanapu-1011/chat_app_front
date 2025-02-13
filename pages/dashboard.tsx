@@ -37,7 +37,7 @@ export default function Dashboard() {
 
   return (
     <>
-      {/* {session.data && (
+      {session.data && (
         <div className="p-6">
           <h1 className="text-2xl">
             Welcome, {session?.data?.user?.email || ''}!
@@ -61,7 +61,7 @@ export default function Dashboard() {
             </p>
           )}
         </div>
-      )} */}
+      )}
     </>
   );
 }
