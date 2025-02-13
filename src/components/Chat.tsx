@@ -81,14 +81,6 @@ export default function Chat({
     });
   }, [messages, newMessage]);
   useEffect(() => {
-    // console.log('Connecting to socket...');
-
-    socket.on('connect', () => {
-      // console.log('Socket Connected:', socket.id);
-    });
-    socket.emit('userOnline', userId); // Register user as online
-    // console.log('🔵 User Online:', userId);
-
     socket.on('receiveMessage', (message) => {
       // console.log('Received Message:', message);
       setMessages((prev) => [...prev, message[0]]);
@@ -176,12 +168,12 @@ export default function Chat({
           <div
             key={msg._id}
             className={`flex items-center  ${
-              msg.senderId._id === userId ? 'justify-end   ' : ' justify-start '
+              msg.senderId._id === userId ? 'justify-end' : ' justify-start'
             }      `}
           >
             <div
-              className={`p-2 my-1       rounded-lg ${
-                msg.senderId._id === userId ? 'bg-blue-300   ' : 'bg-gray-300 '
+              className={`p-2 my-1 rounded-lg ${
+                msg.senderId._id === userId ? 'bg-blue-300' : 'bg-gray-300 '
               } `}
             >
               <strong>{msg.senderId.username}:</strong>

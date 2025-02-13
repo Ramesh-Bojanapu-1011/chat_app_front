@@ -2,6 +2,7 @@ import Chat from '@/components/Chat';
 import FriendList from '@/components/FriendList';
 import FriendRequest from '@/components/FriendRequest';
 import HandleRequests from '@/components/HandleRequests';
+import { getSocket } from '@/data/utils/socket';
 import { getSession, signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -10,6 +11,7 @@ export default function Dashboard() {
   const session = useSession();
   const router = useRouter();
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
+  const socket = getSocket();
 
   useEffect(() => {
     if (session.status == 'unauthenticated') {
@@ -17,12 +19,28 @@ export default function Dashboard() {
     }
     if (session.status == 'loading') {
       console.log('Loading session...');
+      return;
+    }
+    if (session.status == 'authenticated') {
+      console.log('Connecting to socket...');
+
+      socket.on('connect', () => {
+        console.log('Socket Connected:', socket.id);
+      });
+      socket.emit('userOnline', session?.data?.user?.id); // Register user as online
+      console.log('🔵 User Online:', session?.data?.user?.id);
     }
   }, [session]);
 
-  if (!session) {
-    return <div>Not logged in</div>;
-  }
+  // useEffect(() => {
+  //   // console.log('Connecting to socket...');
+
+  //   socket.on('connect', () => {
+  //     // console.log('Socket Connected:', socket.id);
+  //   });
+  //   socket.emit('userOnline', session?.data?.user?.id); // Register user as online
+  //   // console.log('🔵 User Online:', userId);
+  // }, [session?.data?.user?.id]);
 
   console.log(session);
 

@@ -17,7 +17,9 @@ export default function FriendList({
 }) {
   const socket = getSocket();
   const [friends, setFriends] = useState<Friend[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadCounts, setUnreadCounts] = useState<{ [key: string]: number }>(
+    {}
+  );
 
   useEffect(() => {
     fetch(`/api/friends/${userId}`)
@@ -28,16 +30,22 @@ export default function FriendList({
   useEffect(() => {
     const fetchUnreadCount = async () => {
       try {
-        const res = await fetch("/api/messages/unreadCount");
+        const res = await fetch('/api/messages/unreadCount');
         const data = await res.json();
-        console.log(data)
-        setUnreadCount(data.unreadCount);
+        setUnreadCounts(data.unreadCounts);
+        console.log(data);
       } catch (error) {
-        console.error("🚨 Error fetching unread count:", error);
+        console.error('🚨 Error fetching unread count:', error);
       }
     };
-
+    socket.on('unreadcount', () => {
+      fetchUnreadCount();
+    });
     fetchUnreadCount();
+
+    return () => {
+      socket.off('unreadcount');
+    };
   }, []);
 
   useEffect(() => {
@@ -69,24 +77,31 @@ export default function FriendList({
       <div className="p-4 bg-gray-100 rounded-lg shadow-md">
         <h2 className="text-lg font-semibold">Friends List</h2>
         {friends.length === 0 ? <p>No friends found</p> : null}
-        {friends.map((friend) => (
-          <button
-            key={friend._id}
-            onClick={() => onSelectFriend(friend._id)}
-            className="block w-full text-left p-2 mt-2 bg-white rounded-lg shadow-sm hover:bg-blue-100"
-          >
-            <span
-              className={`w-3 h-3 p-4 rounded-full ${friend.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
+        {friends.map((friend) => {
+          const friendId = friend._id.toString();
+          return (
+            <button
+              key={friend._id}
+              onClick={() => onSelectFriend(friend._id)}
+              className="block w-full text-left p-2 mt-2 bg-white rounded-lg shadow-sm hover:bg-blue-100"
             >
-              {friend.username}
-              <span className="text-gray-600 text-sm">
-                {friend.isOnline
-                  ? 'Online'
-                  : `Last seen ${formatLastSeen(friend.lastSeen)}`}
+              <span
+                className={`w-3 h-3 p-4 rounded-full ${friend.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
+              >
+                {friend.username}
+                {unreadCounts[friendId] > 0 && (
+                  <span className="text-xl">{unreadCounts[friendId]}</span>
+                )}
+
+                <span className="text-gray-600 text-sm">
+                  {friend.isOnline
+                    ? 'Online'
+                    : `Last seen ${formatLastSeen(friend.lastSeen)}`}
+                </span>
               </span>
-            </span>
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

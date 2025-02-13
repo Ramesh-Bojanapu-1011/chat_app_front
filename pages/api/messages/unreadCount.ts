@@ -1,5 +1,6 @@
 import { connectDB } from '@/data/lib/mongodb';
 import Message from '@/data/models/Message';
+import mongoose from 'mongoose';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 import { getSession } from 'next-auth/react';
@@ -18,13 +19,20 @@ export default async function handler(
     return res.status(401).json({ error: 'Unauthorized' });
 
   try {
-    // Count unread messages for the logged-in user
-    const unreadCount = await Message.countDocuments({
-      receiverId: session.user.id,
-      isRead: false,
-    });
+    const userId = new mongoose.Types.ObjectId(session.user.id);
 
-    res.status(200).json({ unreadCount });
+    // Aggregate unread messages grouped by senderId
+    const unreadMessages = await Message.aggregate([
+      { $match: { receiverId: userId, isRead: false } },
+      { $group: { _id: '$senderId', count: { $sum: 1 } } },
+    ]);
+
+    const unreadCounts = unreadMessages.reduce((acc, item) => {
+      acc[item._id.toString()] = item.count;
+      return acc;
+    }, {});
+
+    res.status(200).json({ unreadCounts });
   } catch (error) {
     console.error('🚨 Error fetching unread count:', error);
     res.status(500).json({ error: 'Server error' });
