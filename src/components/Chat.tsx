@@ -144,7 +144,9 @@ export default function Chat({
         socket.emit('sendMessage', data.data[0]);
         setMessages((prev) => [...prev, data.data[0]]);
       }
+
     }
+    setNewMessage('')
   };
 
   useEffect(() => {
