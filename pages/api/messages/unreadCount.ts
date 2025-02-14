@@ -13,13 +13,13 @@ export default async function handler(
     return res.status(405).json({ error: 'Method Not Allowed' });
 
   connectDB();
-  const session = await getSession({ req });
+  // const session = await getSession({ req });
+  const { userId } = req.query;
 
-  if (!session || !session.user?.id)
-    return res.status(401).json({ error: 'Unauthorized' });
+  if (!userId) return res.status(401).json({ error: 'User not found' });
 
   try {
-    const userId = new mongoose.Types.ObjectId(session.user.id);
+    // const userId = new mongoose.Types.ObjectId(session.user.id);
 
     // Aggregate unread messages grouped by senderId
     const unreadMessages = await Message.aggregate([

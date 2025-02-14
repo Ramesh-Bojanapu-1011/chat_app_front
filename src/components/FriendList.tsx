@@ -44,7 +44,7 @@ server and updating the state with that count. Here's a breakdown of what it doe
   useEffect(() => {
     const fetchUnreadCount = async () => {
       try {
-        const res = await fetch('/api/messages/unreadCount');
+        const res = await fetch(`/api/messages/unreadCount?userId=${userId}`);
         const data = await res.json();
         setUnreadCounts(data.unreadCounts);
         console.log(data.unreadCounts);
@@ -61,7 +61,7 @@ server and updating the state with that count. Here's a breakdown of what it doe
     return () => {
       socket.off('unreadcount');
     };
-  }, [friends]);
+  }, []);
 
   console.log(friends);
 
@@ -97,7 +97,7 @@ server and updating the state with that count. Here's a breakdown of what it doe
                 {friend.username}
                 {unreadCounts[friendId] && unreadCounts[friendId] > 0 && (
                   <span className="text-xl">{unreadCounts[friendId]}</span>
-                )} 
+                )}
 
                 <span className="text-gray-600 text-sm">
                   {friend.isOnline
