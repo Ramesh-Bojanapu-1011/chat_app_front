@@ -61,7 +61,7 @@ server and updating the state with that count. Here's a breakdown of what it doe
     return () => {
       socket.off('unreadcount');
     };
-  }, [friends]);
+  }, []);
 
   console.log(friends);
 
@@ -83,7 +83,7 @@ server and updating the state with that count. Here's a breakdown of what it doe
         {friends.length === 0 ? <p>No friends found</p> : null}
 
         {friends.map((friend) => {
-          const friendId = friend._id.toString();
+          const friendId = friend._id;
 
           return (
             <button
