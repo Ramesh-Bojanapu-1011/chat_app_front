@@ -14,16 +14,16 @@ export default async function handler(
 
   connectDB();
   // const session = await getSession({ req });
-  const { userId } = req.query;
+  const userId = Array.isArray(req.query.userId) ? req.query.userId[0] : req.query.userId;
 
   if (!userId) return res.status(401).json({ error: 'User not found' });
 
   try {
-    // const userId = new mongoose.Types.ObjectId(session.user.id);
+    const receiverId = new mongoose.Types.ObjectId(userId);
 
     // Aggregate unread messages grouped by senderId
     const unreadMessages = await Message.aggregate([
-      { $match: { receiverId: userId, isRead: false } },
+      { $match: { receiverId: receiverId, isRead: false } },
       { $group: { _id: '$senderId', count: { $sum: 1 } } },
     ]);
 
