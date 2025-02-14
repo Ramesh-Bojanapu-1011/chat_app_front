@@ -61,7 +61,7 @@ server and updating the state with that count. Here's a breakdown of what it doe
     return () => {
       socket.off('unreadcount');
     };
-  }, []);
+  }, [friends]);
 
   console.log(friends);
 
