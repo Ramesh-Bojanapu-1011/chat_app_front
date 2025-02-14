@@ -89,22 +89,24 @@ server and updating the state with that count. Here's a breakdown of what it doe
             <button
               key={friend._id}
               onClick={() => onSelectFriend(friend._id)}
-              className="block w-full text-left p-2 mt-2 bg-white rounded-lg shadow-sm hover:bg-blue-100"
+              className="flex w-full text-left p-2 mt-2 bg-white rounded-lg justify-between shadow-sm hover:bg-blue-100"
             >
-              <span
-                className={`w-3 h-3 p-4 rounded-full ${friend.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
+              <div
+                className={`  flex w-fit p-4 items-center justify-center rounded-full ${friend.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
               >
                 {friend.username}
-                {unreadCounts[friendId] && unreadCounts[friendId] > 0 && (
-                  <span className="text-xl">{unreadCounts[friendId]}</span>
-                )}
 
                 <span className="text-gray-600 text-sm">
                   {friend.isOnline
                     ? 'Online'
                     : `Last seen ${formatLastSeen(friend.lastSeen)}`}
                 </span>
-              </span>
+              </div>
+              {unreadCounts[friendId] && unreadCounts[friendId] > 0 && (
+                <span className="text-xl  w-fit items-start justify-end p-3 rounded-2xl bg-green-500">
+                  {unreadCounts[friendId]}
+                </span>
+              )}
             </button>
           );
         })}
