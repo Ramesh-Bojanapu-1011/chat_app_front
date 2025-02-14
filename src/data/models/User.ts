@@ -1,16 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IUser extends Document {
-  username: string;
-  email: string;
-  password: string;
-  friends: mongoose.Types.ObjectId[];
-  friendRequests: mongoose.Types.ObjectId[];
-  isOnline: boolean;
-  lastSeen: Date;
-}
-
-const UserSchema = new Schema<IUser>({
+const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
@@ -20,5 +10,4 @@ const UserSchema = new Schema<IUser>({
   lastSeen: { type: Date, default: null },
 });
 
-export default mongoose.models.User ||
-  mongoose.model<IUser>('User', UserSchema);
+export default mongoose.models.User || mongoose.model('User', UserSchema);

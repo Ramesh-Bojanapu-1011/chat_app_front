@@ -14,7 +14,9 @@ export default async function handler(
 
   connectDB();
   // const session = await getSession({ req });
-  const userId = Array.isArray(req.query.userId) ? req.query.userId[0] : req.query.userId;
+  const userId = Array.isArray(req.query.userId)
+    ? req.query.userId[0]
+    : req.query.userId;
 
   if (!userId) return res.status(401).json({ error: 'User not found' });
 

@@ -7,7 +7,6 @@ import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
-
 export default function Dashboard() {
   const session = useSession();
   const router = useRouter();

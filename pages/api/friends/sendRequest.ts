@@ -27,6 +27,12 @@ export default async function handler(
     const friend = await User.findOne({ email: friendEmail });
     if (!friend) return res.status(404).json({ error: 'User not found' });
 
+    if (userId == friend._id) {
+      return res
+        .status(400)
+        .json({ error: 'You cannot send a friend request to yourself' });
+    }
+
     // Check if already friends or request sent
     if (
       friend.friends.includes(userId) ||
@@ -39,7 +45,11 @@ export default async function handler(
     friend.friendRequests.push(userId);
     await friend.save();
 
-    return res.status(200).json({ message: 'Friend request sent!' });
+    return res.status(200).json({
+      message: 'Friend request sent!',
+      senderid: userId,
+      receiverid: friend._id,
+    });
   } catch (error: any) {
     return res
       .status(500)
