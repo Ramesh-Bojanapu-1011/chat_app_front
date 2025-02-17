@@ -9,14 +9,14 @@ interface LoginForm {
   password: string;
 }
 
-export default function Login({ providers }: any) {
+export default function Login() {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginForm>();
 
-  console.log(providers);
+  // console.log(providers);
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -46,7 +46,7 @@ export default function Login({ providers }: any) {
         <h2 className="text-2xl font-bold text-center text-gray-700">Login</h2>
         <div className="flex justify-center gap-3.5">
           {/* OAuth Login Buttons */}
-          {Object.values(providers).map((provider: any) =>
+          {/* {Object.values(providers).map((provider: any) =>
             provider.name !== 'Credentials' ? (
               <button
                 key={provider.name}
@@ -104,7 +104,7 @@ export default function Login({ providers }: any) {
                 )}
               </button>
             ) : null
-          )}
+          )} */}
         </div>
 
         {errorMessage && (
