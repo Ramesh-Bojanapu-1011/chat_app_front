@@ -33,8 +33,14 @@ export default function FriendList({
         .then((res) => res.json())
         .then(setFriends);
     });
+    socket.on('requestUpdate', () => {
+      fetch(`/api/friends/${userId}`)
+        .then((res) => res.json())
+        .then(setFriends);
+    });
 
     return () => {
+      socket.off('requestUpdate');
       socket.off('userStatusUpdate');
     };
   }, [userId]);

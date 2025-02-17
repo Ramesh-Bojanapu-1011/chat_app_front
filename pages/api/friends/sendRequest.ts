@@ -23,9 +23,11 @@ export default async function handler(
     if (!friend) return res.status(404).json({ error: 'User not found' });
 
     if (userId == friend._id) {
-      return res
-        .status(400)
-        .json({ error: 'You cannot send a friend request to yourself' });
+      return res.status(400).json({
+        error: 'You cannot send a friend request to yourself',
+        senderId: userId,
+        receiverId: friend._id,
+      });
     }
 
     // Check if already friends or request sent

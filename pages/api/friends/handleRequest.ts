@@ -38,7 +38,11 @@ export default async function handler(
     await user.save();
     await friend.save();
 
-    return res.status(200).json({ message: `Friend request ${action}ed!` });
+    return res.status(200).json({
+      message: `Friend request ${action}!`,
+      user: user._id,
+      friend: friend._id,
+    });
   } catch (error: any) {
     return res
       .status(500)

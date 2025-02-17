@@ -1,12 +1,13 @@
+import { getSocket } from '@/data/utils/socket';
 import { useState } from 'react';
 
 export default function FriendRequest({ userId }: { userId: string }) {
   const [friendEmail, setFriendEmail] = useState('');
   const [message, setMessage] = useState('');
 
-  const sendRequest = async () => {
-    setMessage('');
+  const socket = getSocket();
 
+  const sendRequest = async () => {
     const res = await fetch('/api/friends/sendRequest', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -14,12 +15,20 @@ export default function FriendRequest({ userId }: { userId: string }) {
     });
 
     const data = await res.json();
-
     if (res.ok) {
+      socket.emit('sendFriendRequest', {
+        senderId: data.senderId,
+        receiverId: data.receiverId,
+      });
       setMessage('Friend request sent!');
     } else {
       setMessage(data.error);
+      socket.emit('sendFriendRequest', {
+        senderId: data.senderId,
+        receiverId: data.receiverId,
+      });
     }
+    setFriendEmail('');
   };
 
   return (

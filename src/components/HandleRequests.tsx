@@ -1,3 +1,4 @@
+import { getSocket } from '@/data/utils/socket';
 import { useEffect, useState } from 'react';
 
 interface Request {
@@ -9,6 +10,8 @@ interface Request {
 export default function HandleRequests({ userId }: { userId: string }) {
   const [requests, setRequests] = useState<Request[]>([]);
 
+  const socket = getSocket();
+
   useEffect(() => {
     const fetchRequests = async () => {
       const res = await fetch(`/api/friends/getRequests?userId=${userId}`);
@@ -17,7 +20,14 @@ export default function HandleRequests({ userId }: { userId: string }) {
       setRequests(data.requests);
     };
 
+    socket.on('requestUpdate', () => {
+      fetchRequests();
+    });
+
     fetchRequests();
+    return () => {
+      socket.off('requestUpdate');
+    };
   }, [userId]);
 
   //   console.log(requests)
@@ -31,6 +41,9 @@ export default function HandleRequests({ userId }: { userId: string }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, friendId, action }),
     });
+    if (action == 'accept') {
+      socket.emit('acceptRequest', friendId, userId);
+    }
 
     setRequests((prev) => prev.filter((req) => req._id !== friendId));
   };
