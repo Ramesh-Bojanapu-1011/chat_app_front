@@ -2,20 +2,21 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { getProviders, signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import { loginOptions } from '@/data/login/loginoption';
 
 interface LoginForm {
   email: string;
   password: string;
 }
 
-export default function Login({ providers }: any) {
+export default function Login() {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginForm>();
 
-  console.log(providers);
+ console.log(loginOptions)
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -45,9 +46,9 @@ export default function Login({ providers }: any) {
         <h2 className="text-2xl font-bold text-center text-gray-700">Login</h2>
         <div className="flex justify-center gap-3.5">
           {/* OAuth Login Buttons */}
-          {providers && (
+          {loginOptions && (
             <>
-              {Object.values(providers).map((provider: any) =>
+              {Object.values(loginOptions).map((provider: any) =>
                 provider.name !== 'Credentials' ? (
                   <button
                     key={provider.name}
