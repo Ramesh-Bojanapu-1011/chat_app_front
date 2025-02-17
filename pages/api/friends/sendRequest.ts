@@ -18,11 +18,6 @@ export default async function handler(
     if (!userId || !friendEmail) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    if (userId === friendEmail) {
-      return res.status(400).json({
-        error: 'Invalid request: You cannot send a friend request to yourself',
-      });
-    }
 
     const friend = await User.findOne({ email: friendEmail });
     if (!friend) return res.status(404).json({ error: 'User not found' });
@@ -38,7 +33,11 @@ export default async function handler(
       friend.friends.includes(userId) ||
       friend.friendRequests.includes(userId)
     ) {
-      return res.status(400).json({ error: 'Already friends or request sent' });
+      return res.status(400).json({
+        error: 'Already friends or request sent',
+        senderId: userId,
+        receiverId: friend._id,
+      });
     }
 
     // Add friend request
@@ -47,8 +46,8 @@ export default async function handler(
 
     return res.status(200).json({
       message: 'Friend request sent!',
-      senderid: userId,
-      receiverid: friend._id,
+      senderId: userId,
+      receiverId: friend._id,
     });
   } catch (error: any) {
     return res
