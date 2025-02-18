@@ -16,7 +16,7 @@ export default function Login() {
     formState: { errors },
   } = useForm<LoginForm>();
 
- console.log(loginOptions)
+  console.log(loginOptions);
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');

@@ -43,7 +43,7 @@ export default function Dashboard() {
           </h1>
           <p>You are now logged in.</p>
           <button onClick={() => signOut({ callbackUrl: '/' })}>Logout</button>
-           <FriendRequest userId={session?.data?.user?.id || ''} />
+          <FriendRequest userId={session?.data?.user?.id || ''} />
           <HandleRequests userId={session?.data?.user?.id || ''} />
           <FriendList
             userId={session?.data?.user?.id || ''}
