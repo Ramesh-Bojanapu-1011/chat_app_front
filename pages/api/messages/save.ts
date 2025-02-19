@@ -1,4 +1,5 @@
 import { connectDB } from '@/data/lib/mongodb';
+import Conversation from '@/data/models/Conversation';
 import Message from '@/data/models/Message';
 import mongoose from 'mongoose';
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -21,6 +22,16 @@ export default async function handler(
 
     const newMessage = new Message({ senderId, receiverId, message, fileUrl });
     await newMessage.save();
+
+    // Check if a conversation already exists between the two users
+    let conversation = await Conversation.findOne({
+      members: { $all: [senderId, receiverId] }
+    });
+
+    // If no conversation exists, create a new one
+    if (!conversation) {
+      conversation = await Conversation.create({ members: [senderId, receiverId] });
+    }
 
     // Convert string IDs to ObjectId
     const senderObjectId = new mongoose.Types.ObjectId(senderId);

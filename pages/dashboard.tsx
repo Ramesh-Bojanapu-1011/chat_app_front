@@ -1,4 +1,5 @@
 import Chat from '@/components/Chat';
+import ChatMembers from '@/components/ChatMembers';
 import FriendList from '@/components/FriendList';
 import FriendRequest from '@/components/FriendRequest';
 import HandleRequests from '@/components/HandleRequests';
@@ -45,6 +46,7 @@ export default function Dashboard() {
           <button onClick={() => signOut({ callbackUrl: '/' })}>Logout</button>
           <FriendRequest userId={session?.data?.user?.id || ''} />
           <HandleRequests userId={session?.data?.user?.id || ''} />
+          <ChatMembers conversationId={session?.data?.user?.id || ''} />
           <FriendList
             userId={session?.data?.user?.id || ''}
             onSelectFriend={setSelectedFriendId}
