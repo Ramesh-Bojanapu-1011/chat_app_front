@@ -20,6 +20,7 @@ const ChatMembers = ({ conversationId }: { conversationId: string }) => {
               .filter((member: any) => member._id !== conversationId) // Exclude the logged-in user
               .map((member: any) => member.username)
               .join(', ')}
+            <span className="text-gray-500"> ({new Date(conv.createdAt).toLocaleString()})</span>
           </li>
         ))}
       </ul>
