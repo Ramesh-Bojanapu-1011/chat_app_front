@@ -24,8 +24,10 @@ export default async function handler(
     await newMessage.save();
 
     // Check if a conversation already exists between the two users
-    let conversation = await Conversation.findOne({
-      members: { $all: [senderId, receiverId] }
+    let conversation = await Conversation.findOneAndUpdate({
+      members: { $all: [senderId, receiverId],
+        $set: { lastMessage: newMessage, createdAt: Date.now() }
+       }
     });
 
     // If no conversation exists, create a new one

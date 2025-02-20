@@ -11,9 +11,9 @@ export default async function handler(
   const { id } = req.query; // Conversation ID
 
   if (req.method === 'GET') {
-    const conversation = await Conversation.find({ members: id }).populate(
-      'members'
-    );
+    const conversation = await Conversation.find({ members: id })
+      .populate('members')
+      .sort({ createdAt: -1 });
     if (!conversation) throw new Error('Conversation not found');
 
     res.status(200).json(conversation);
