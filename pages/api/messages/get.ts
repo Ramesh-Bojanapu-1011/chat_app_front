@@ -1,14 +1,14 @@
-import { connectDB } from '@/data/lib/mongodb';
-import Message from '@/data/models/Message';
-import mongoose from 'mongoose';
-import { NextApiRequest, NextApiResponse } from 'next';
+import { connectDB } from "@/data/lib/mongodb";
+import Message from "@/data/models/Message";
+import mongoose from "mongoose";
+import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
 
   try {
@@ -18,7 +18,7 @@ export default async function handler(
     if (!senderId || !receiverId) {
       return res
         .status(400)
-        .json({ error: 'Sender ID and Receiver ID are required' });
+        .json({ error: "Sender ID and Receiver ID are required" });
     }
 
     // Ensure senderId and receiverId are not arrays and are strings
@@ -38,14 +38,14 @@ export default async function handler(
         { senderId: receiverObjectId, receiverId: senderObjectId },
       ],
     })
-      .populate('senderId', 'username email') // Populate sender details
-      .populate('receiverId', 'username email') // Populate receiver details
+      .populate("senderId", "username email") // Populate sender details
+      .populate("receiverId", "username email") // Populate receiver details
       .sort({ createdAt: 1 });
 
     return res.status(200).json({ messages });
   } catch (error: any) {
     return res
       .status(500)
-      .json({ error: error.message || 'Internal Server Error' });
+      .json({ error: error.message || "Internal Server Error" });
   }
 }

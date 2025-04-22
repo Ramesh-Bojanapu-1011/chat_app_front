@@ -1,15 +1,15 @@
-import { connectDB } from '@/data/lib/mongodb';
-import Conversation from '@/data/models/Conversation';
-import Message from '@/data/models/Message';
-import mongoose from 'mongoose';
-import { NextApiRequest, NextApiResponse } from 'next';
+import { connectDB } from "@/data/lib/mongodb";
+import Conversation from "@/data/models/Conversation";
+import Message from "@/data/models/Message";
+import mongoose from "mongoose";
+import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
 
   try {
@@ -17,7 +17,7 @@ export default async function handler(
 
     const { senderId, receiverId, message, fileUrl } = req.body;
     if (!senderId || !receiverId || !message) {
-      return res.status(400).json({ error: 'Missing fields' });
+      return res.status(400).json({ error: "Missing fields" });
     }
 
     const newMessage = new Message({ senderId, receiverId, message, fileUrl });
@@ -25,14 +25,17 @@ export default async function handler(
 
     // Check if a conversation already exists between the two users
     let conversation = await Conversation.findOneAndUpdate({
-      members: { $all: [senderId, receiverId],
-        $set: { lastMessage: newMessage, createdAt: Date.now() }
-       }
+      members: {
+        $all: [senderId, receiverId],
+        $set: { lastMessage: newMessage, createdAt: Date.now() },
+      },
     });
 
     // If no conversation exists, create a new one
     if (!conversation) {
-      conversation = await Conversation.create({ members: [senderId, receiverId] });
+      conversation = await Conversation.create({
+        members: [senderId, receiverId],
+      });
     }
 
     // Convert string IDs to ObjectId
@@ -45,15 +48,15 @@ export default async function handler(
         { senderId: receiverObjectId, receiverId: senderObjectId },
       ],
     })
-      .populate('senderId', 'username email') // Populate sender details
-      .populate('receiverId', 'username email') // Populate receiver details
+      .populate("senderId", "username email") // Populate sender details
+      .populate("receiverId", "username email") // Populate receiver details
       .sort({ createdAt: -1 }) // Sort by creation date in descending order
       .limit(1);
 
-    return res.status(201).json({ message: 'Message stored', data: finalmsg });
+    return res.status(201).json({ message: "Message stored", data: finalmsg });
   } catch (error: any) {
     return res
       .status(500)
-      .json({ error: error.message || 'Internal Server Error' });
+      .json({ error: error.message || "Internal Server Error" });
   }
 }

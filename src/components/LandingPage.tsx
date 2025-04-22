@@ -1,5 +1,5 @@
-import React from 'react';
-import { MessageCircle, Users, Shield, Zap, ArrowRight } from 'lucide-react';
+import React from "react";
+import { MessageCircle, Users, Shield, Zap, ArrowRight } from "lucide-react";
 
 const LandingPage = () => {
   return (
@@ -34,7 +34,7 @@ const LandingPage = () => {
               <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                 Sign Up
               </button>
-            </a>{' '}
+            </a>{" "}
           </div>
         </div>
       </nav>

@@ -1,13 +1,13 @@
-import NextAuth from 'next-auth';
-import Google from 'next-auth/providers/google';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import bcrypt from 'bcryptjs';
-import { connectDB } from '@/data/lib/mongodb';
-import User from '@/data/models/User';
-import Facebook from 'next-auth/providers/facebook';
+import NextAuth from "next-auth";
+import Google from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
+import { connectDB } from "@/data/lib/mongodb";
+import User from "@/data/models/User";
+// import Facebook from 'next-auth/providers/facebook';
 
 export default NextAuth({
-  session: { strategy: 'jwt' },
+  session: { strategy: "jwt" },
   providers: [
     // Google Sign-In
     Google({
@@ -16,35 +16,35 @@ export default NextAuth({
     }),
 
     // Facebook Sign-In
-    Facebook({
-      clientId: process.env.FACEBOOK_CLIENT_ID!,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
-    }),
+    // Facebook({
+    //   clientId: process.env.FACEBOOK_CLIENT_ID!,
+    //   clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+    // }),
     CredentialsProvider({
-      name: 'Credentials',
+      name: "Credentials",
       credentials: {
-        email: { label: 'Email', type: 'text' },
-        password: { label: 'Password', type: 'password' },
-        username: { label: 'username', type: 'text' },
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+        username: { label: "username", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Missing email or password');
+          throw new Error("Missing email or password");
         }
 
         await connectDB();
         const user = await User.findOne({ email: credentials?.email });
 
         if (!user) {
-          throw new Error('User not found');
+          throw new Error("User not found");
         }
 
         const isValid = await bcrypt.compare(
           credentials?.password,
-          user.password
+          user.password,
         );
         if (!isValid) {
-          throw new Error('Invalid credentials');
+          throw new Error("Invalid credentials");
         }
 
         return { id: user._id, email: user.email, username: user.username };
@@ -56,19 +56,19 @@ export default NextAuth({
     async signIn({ account, profile }) {
       await connectDB();
 
-      if (account?.provider === 'credentials') {
+      if (account?.provider === "credentials") {
         return true; // Skip for credentials
       }
 
       // Handle Google/Facebook sign-in
       const email = profile?.email;
-      if (!email) throw new Error('Email is required');
+      if (!email) throw new Error("Email is required");
 
       let user = await User.findOne({ email });
       if (!user) {
         user = new User({
           email,
-          username: profile?.name || email.split('@')[0],
+          username: profile?.name || email.split("@")[0],
           provider: account?.provider,
           isOAuth: true,
           image: profile.image,

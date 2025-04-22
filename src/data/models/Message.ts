@@ -1,16 +1,16 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 // Message schema with ObjectId references
 const MessageSchema = new mongoose.Schema(
   {
     senderId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     receiverId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     message: { type: String },
@@ -18,8 +18,8 @@ const MessageSchema = new mongoose.Schema(
     isRead: { type: Boolean, default: false },
     isReadAt: { type: Date, default: null }, // Store when the message was read
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.models.Message ||
-  mongoose.model('Message', MessageSchema);
+  mongoose.model("Message", MessageSchema);

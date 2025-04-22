@@ -1,5 +1,5 @@
-import { getSocket } from '@/data/utils/socket';
-import { useEffect, useState } from 'react';
+import { getSocket } from "@/data/utils/socket";
+import { useEffect, useState } from "react";
 
 interface Friend {
   _id: string;
@@ -18,7 +18,7 @@ export default function FriendList({
   const socket = getSocket();
   const [friends, setFriends] = useState<Friend[]>([]);
   const [unreadCounts, setUnreadCounts] = useState<{ [key: string]: number }>(
-    {}
+    {},
   );
 
   useEffect(() => {
@@ -28,20 +28,20 @@ export default function FriendList({
   }, []);
 
   useEffect(() => {
-    socket.on('userStatusUpdate', () => {
+    socket.on("userStatusUpdate", () => {
       fetch(`/api/friends/${userId}`)
         .then((res) => res.json())
         .then(setFriends);
     });
-    socket.on('requestUpdate', () => {
+    socket.on("requestUpdate", () => {
       fetch(`/api/friends/${userId}`)
         .then((res) => res.json())
         .then(setFriends);
     });
 
     return () => {
-      socket.off('requestUpdate');
-      socket.off('userStatusUpdate');
+      socket.off("requestUpdate");
+      socket.off("userStatusUpdate");
     };
   }, [userId]);
 
@@ -55,28 +55,28 @@ server and updating the state with that count. Here's a breakdown of what it doe
         setUnreadCounts(data.unreadCounts);
         console.log(data.unreadCounts);
       } catch (error) {
-        console.error('🚨 Error fetching unread count:', error);
+        console.error("🚨 Error fetching unread count:", error);
       }
     };
 
-    socket.on('unreadcount', () => {
+    socket.on("unreadcount", () => {
       fetchUnreadCount();
     });
     fetchUnreadCount();
 
     return () => {
-      socket.off('unreadcount');
+      socket.off("unreadcount");
     };
   }, []);
 
   console.log(friends);
 
   const formatLastSeen = (date: any) => {
-    if (!date) return 'Unknown';
+    if (!date) return "Unknown";
     const diff = Math.floor(
-      (new Date().getTime() - new Date(date).getTime()) / 60000
+      (new Date().getTime() - new Date(date).getTime()) / 60000,
     ); // in minutes
-    if (diff < 1) return 'Just now';
+    if (diff < 1) return "Just now";
     if (diff < 60) return `${diff} minutes ago`;
     if (diff < 24 * 60) return `${Math.floor(diff / 60)} hours ago`;
     return `${Math.floor(diff / (24 * 60))} days ago`;
@@ -98,13 +98,13 @@ server and updating the state with that count. Here's a breakdown of what it doe
               className="flex w-full text-left p-2 mt-2 bg-white rounded-lg justify-between shadow-sm hover:bg-blue-100"
             >
               <div
-                className={`  flex w-fit p-4 items-center justify-center rounded-full ${friend.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
+                className={`  flex w-fit p-4 items-center justify-center rounded-full ${friend.isOnline ? "bg-green-500" : "bg-gray-400"}`}
               >
                 {friend.username}
 
                 <span className="text-gray-600 text-sm">
                   {friend.isOnline
-                    ? 'Online'
+                    ? "Online"
                     : `Last seen ${formatLastSeen(friend.lastSeen)}`}
                 </span>
               </div>

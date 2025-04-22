@@ -1,34 +1,34 @@
-import { getSocket } from '@/data/utils/socket';
-import { useState } from 'react';
+import { getSocket } from "@/data/utils/socket";
+import { useState } from "react";
 
 export default function FriendRequest({ userId }: { userId: string }) {
-  const [friendEmail, setFriendEmail] = useState('');
-  const [message, setMessage] = useState('');
+  const [friendEmail, setFriendEmail] = useState("");
+  const [message, setMessage] = useState("");
 
   const socket = getSocket();
 
   const sendRequest = async () => {
-    const res = await fetch('/api/friends/sendRequest', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch("/api/friends/sendRequest", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId, friendEmail }),
     });
 
     const data = await res.json();
     if (res.ok) {
-      socket.emit('sendFriendRequest', {
+      socket.emit("sendFriendRequest", {
         senderId: data.senderId,
         receiverId: data.receiverId,
       });
-      setMessage('Friend request sent!');
+      setMessage("Friend request sent!");
     } else {
       setMessage(data.error);
-      socket.emit('sendFriendRequest', {
+      socket.emit("sendFriendRequest", {
         senderId: data.senderId,
         receiverId: data.receiverId,
       });
     }
-    setFriendEmail('');
+    setFriendEmail("");
   };
 
   return (

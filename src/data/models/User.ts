@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 const UserSchema = new mongoose.Schema({
   username: {
@@ -15,16 +15,16 @@ const UserSchema = new mongoose.Schema({
       return !this.isOAuth;
     },
   },
-  friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-  friendRequests: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  friends: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  friendRequests: [{ type: Schema.Types.ObjectId, ref: "User" }],
   isOnline: { type: Boolean, default: false },
   lastSeen: { type: Date, default: null },
   provider: {
     type: String,
-    enum: ['credentials', 'google', 'facebook'],
-    default: 'credentials',
+    enum: ["credentials", "google", "facebook"],
+    default: "credentials",
   },
   isOAuth: { type: Boolean, default: false },
 });
 
-export default mongoose.models.User || mongoose.model('User', UserSchema);
+export default mongoose.models.User || mongoose.model("User", UserSchema);

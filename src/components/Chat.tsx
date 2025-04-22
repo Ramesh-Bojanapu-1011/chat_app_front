@@ -1,7 +1,7 @@
-'use client';
-import React, { useRef } from 'react';
-import { getSocket } from '@/data/utils/socket';
-import { useEffect, useState } from 'react';
+"use client";
+import React, { useRef } from "react";
+import { getSocket } from "@/data/utils/socket";
+import { useEffect, useState } from "react";
 
 interface Message {
   _id: string;
@@ -22,12 +22,12 @@ export default function Chat({
   friendId: string;
 }) {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState("");
   const [file, setFile] = useState<File>();
-  const [fileUrl, setFileUrl] = useState('');
+  const [fileUrl, setFileUrl] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const [friend, setFriend] = useState('');
+  const [friend, setFriend] = useState("");
 
   const socket = getSocket();
 
@@ -36,7 +36,7 @@ export default function Chat({
   useEffect(() => {
     const fetchMessages = async () => {
       const res = await fetch(
-        `/api/messages/get?senderId=${userId}&receiverId=${friendId}`
+        `/api/messages/get?senderId=${userId}&receiverId=${friendId}`,
       );
       const data = await res.json();
       // console.log(data.messages);
@@ -56,17 +56,17 @@ export default function Chat({
 
   useEffect(() => {
     // Listen for read receipts
-    socket.on('messageRead', ({ messageId, isReadAt }) => {
+    socket.on("messageRead", ({ messageId, isReadAt }) => {
       // console.log('✅ Message Read Event Received:', messageId);
       setMessages((prev) =>
         prev.map((msg) =>
-          msg._id === messageId ? { ...msg, isRead: true, isReadAt } : msg
-        )
+          msg._id === messageId ? { ...msg, isRead: true, isReadAt } : msg,
+        ),
       );
     });
 
     return () => {
-      socket.off('messageRead');
+      socket.off("messageRead");
     };
   }, []);
 
@@ -74,20 +74,20 @@ export default function Chat({
     messages.forEach((msg) => {
       if (!msg.isRead && msg.receiverId._id === userId) {
         // console.log('📤 Sending Mark Read Event:', msg._id);
-        socket.emit('markAsRead', {
+        socket.emit("markAsRead", {
           messageId: msg._id,
         });
       }
     });
   }, [messages, newMessage]);
   useEffect(() => {
-    socket.on('receiveMessage', (message) => {
+    socket.on("receiveMessage", (message) => {
       // console.log('Received Message:', message);
       setMessages((prev) => [...prev, message[0]]);
     });
 
     return () => {
-      socket.off('receiveMessage');
+      socket.off("receiveMessage");
     };
   }, [userId]);
 
@@ -96,23 +96,23 @@ export default function Chat({
     if (file || newMessage) {
       if (file) {
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append("file", file);
         const upload = await fetch(
           `/api/upload?senderId=${userId}&receiverId=${friendId},`,
           {
-            method: 'POST',
+            method: "POST",
             body: formData,
-          }
+          },
         );
         // console.log(formData);
         const uploadResponse = await upload.json();
         const fileUrl = uploadResponse.fileUrl;
         setFileUrl(fileUrl);
         // console.log('fileUrl', fileUrl);
-        const res = await fetch('/api/messages/save', {
-          method: 'POST',
+        const res = await fetch("/api/messages/save", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             senderId: userId,
@@ -123,14 +123,14 @@ export default function Chat({
         });
         const data = await res.json();
         // console.log('📤 Sending Message:', data.data);
-        socket.emit('sendMessage', data.data[0]);
+        socket.emit("sendMessage", data.data[0]);
         setMessages((prev) => [...prev, data.data[0]]);
       } else {
         // console.log('fileUrl', fileUrl);
-        const res = await fetch('/api/messages/save', {
-          method: 'POST',
+        const res = await fetch("/api/messages/save", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             senderId: userId,
@@ -141,21 +141,21 @@ export default function Chat({
         });
         const data = await res.json();
         // console.log('📤 Sending Message:', data.data);
-        socket.emit('sendMessage', data.data[0]);
+        socket.emit("sendMessage", data.data[0]);
         setMessages((prev) => [...prev, data.data[0]]);
       }
     }
-    setNewMessage('');
+    setNewMessage("");
   };
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const formatTime = (timestamp: any) => {
     return new Date(timestamp).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -169,12 +169,12 @@ export default function Chat({
           <div
             key={msg._id}
             className={`flex items-center  ${
-              msg.senderId._id === userId ? 'justify-end' : ' justify-start'
+              msg.senderId._id === userId ? "justify-end" : " justify-start"
             }      `}
           >
             <div
               className={`p-2 my-1 rounded-lg ${
-                msg.senderId._id === userId ? 'bg-blue-300' : 'bg-gray-300 '
+                msg.senderId._id === userId ? "bg-blue-300" : "bg-gray-300 "
               } `}
             >
               <strong>{msg.senderId.username}:</strong>
@@ -182,7 +182,7 @@ export default function Chat({
                 <>
                   <img src={msg.fileUrl} alt={msg.fileUrl} />
                 </>
-              )}{' '}
+              )}{" "}
               {msg.message}
               {msg.senderId._id === userId && (
                 <>

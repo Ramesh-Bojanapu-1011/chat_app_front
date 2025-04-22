@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { useRouter } from 'next/router';
-import { useForm } from 'react-hook-form';
+import { useState } from "react";
+import { useRouter } from "next/router";
+import { useForm } from "react-hook-form";
 
 interface SignupForm {
   username: string;
@@ -16,27 +16,27 @@ export default function Signup() {
   } = useForm<SignupForm>();
 
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
 
   const onSubmit = async (data: SignupForm) => {
     setLoading(true);
-    setErrorMessage('');
+    setErrorMessage("");
 
     try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
 
       const responseData = await res.json();
       if (!res.ok) throw new Error(responseData.error);
 
-      alert('Registration successful!');
-      router.push('/login'); // Redirect to login page
+      alert("Registration successful!");
+      router.push("/login"); // Redirect to login page
     } catch (error: any) {
-      setErrorMessage(error.message || 'Something went wrong.');
+      setErrorMessage(error.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -61,7 +61,7 @@ export default function Signup() {
             </label>
             <input
               type="text"
-              {...register('username', { required: 'Username is required' })}
+              {...register("username", { required: "Username is required" })}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             />
             {errors.username && (
@@ -78,7 +78,7 @@ export default function Signup() {
             </label>
             <input
               type="email"
-              {...register('email', { required: 'Email is required' })}
+              {...register("email", { required: "Email is required" })}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             />
             {errors.email && (
@@ -95,11 +95,11 @@ export default function Signup() {
             </label>
             <input
               type="password"
-              {...register('password', {
-                required: 'Password is required',
+              {...register("password", {
+                required: "Password is required",
                 minLength: {
                   value: 6,
-                  message: 'Password must be at least 6 characters',
+                  message: "Password must be at least 6 characters",
                 },
               })}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
@@ -117,12 +117,12 @@ export default function Signup() {
             disabled={loading}
             className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
           >
-            {loading ? 'Signing Up...' : 'Sign Up'}
+            {loading ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
 
         <p className="mt-4 text-sm text-center">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <a href="/login" className="text-blue-500">
             Log in
           </a>
